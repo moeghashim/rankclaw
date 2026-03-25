@@ -19,6 +19,9 @@ export const GEMINI_RECOMMENDATION_SNAPSHOT_ARTIFACT_KIND = "rankclaw/research/r
 export const GEMINI_RECOMMENDATION_SNAPSHOT_ARTIFACT_SCHEMA_VERSION = 1;
 export const GEMINI_RECOMMENDATION_SNAPSHOT_ARTIFACT_RELATIVE_PATH = "research/gemini-answer-intent-snapshot.json";
 export const GEMINI_RESEARCH_ENGINE = "gemini";
+export const GROK_RECOMMENDATION_SNAPSHOT_ARTIFACT_RELATIVE_PATH = "research/grok-answer-intent-snapshot.json";
+export const GROK_RESEARCH_ENGINE = "grok";
+export type RecommendationResearchEngine = typeof GEMINI_RESEARCH_ENGINE | typeof GROK_RESEARCH_ENGINE;
 
 export interface RecommendationPromptRecord {
 	id: string;
@@ -30,6 +33,7 @@ export interface GeminiRawResponseEnvelope {
 	model: string;
 	rawResponse: string;
 }
+export type GrokRawResponseEnvelope = GeminiRawResponseEnvelope;
 
 export interface AnswerIntentQuestion {
 	id: string;
@@ -52,7 +56,7 @@ export interface NormalizedRecommendationSnapshot {
 export interface GeminiRecommendationSnapshotArtifact {
 	kind: typeof GEMINI_RECOMMENDATION_SNAPSHOT_ARTIFACT_KIND;
 	schemaVersion: typeof GEMINI_RECOMMENDATION_SNAPSHOT_ARTIFACT_SCHEMA_VERSION;
-	engine: typeof GEMINI_RESEARCH_ENGINE;
+	engine: RecommendationResearchEngine;
 	capturedAt: string;
 	context: {
 		target: IntakeTarget;
@@ -62,6 +66,7 @@ export interface GeminiRecommendationSnapshotArtifact {
 	response: GeminiRawResponseEnvelope;
 	snapshot: NormalizedRecommendationSnapshot;
 }
+export type GrokRecommendationSnapshotArtifact = GeminiRecommendationSnapshotArtifact;
 
 export interface CreateGeminiRecommendationSnapshotOptions {
 	intakeArtifact: TargetCompetitorArtifact;
@@ -69,6 +74,7 @@ export interface CreateGeminiRecommendationSnapshotOptions {
 	prompts?: readonly RecommendationPromptRecord[];
 	capturedAt?: string;
 }
+export type CreateGrokRecommendationSnapshotOptions = CreateGeminiRecommendationSnapshotOptions;
 
 export class ResearchSnapshotValidationError extends Error {
 	constructor(message: string) {
@@ -77,9 +83,10 @@ export class ResearchSnapshotValidationError extends Error {
 	}
 }
 
-export function buildGeminiAnswerIntentPrompts(
-	intakeArtifact: TargetCompetitorArtifact,
-): readonly RecommendationPromptRecord[] {
+export const buildGeminiAnswerIntentPrompts = buildAnswerIntentPrompts;
+export const buildGrokAnswerIntentPrompts = buildAnswerIntentPrompts;
+
+function buildAnswerIntentPrompts(intakeArtifact: TargetCompetitorArtifact): readonly RecommendationPromptRecord[] {
 	const competitorLines = intakeArtifact.competitors
 		.map((competitor, index) => `${index + 1}. ${competitor.name} (${competitor.site.origin})`)
 		.join("\n");
@@ -115,7 +122,16 @@ export function buildGeminiAnswerIntentPrompts(
 }
 
 export function normalizeGeminiAnswerIntentResponse(rawResponse: string): NormalizedRecommendationSnapshot {
-	const parsedPayload = parseGeminiPayload(rawResponse);
+	const parsedPayload = parseResearchPayload(rawResponse, "Gemini");
+	return {
+		summary: parsedPayload.summary,
+		questions: parsedPayload.questions,
+		recommendations: parsedPayload.recommendations,
+	};
+}
+
+export function normalizeGrokAnswerIntentResponse(rawResponse: string): NormalizedRecommendationSnapshot {
+	const parsedPayload = parseResearchPayload(rawResponse, "Grok");
 	return {
 		summary: parsedPayload.summary,
 		questions: parsedPayload.questions,
@@ -126,17 +142,48 @@ export function normalizeGeminiAnswerIntentResponse(rawResponse: string): Normal
 export function createGeminiRecommendationSnapshotArtifact(
 	options: CreateGeminiRecommendationSnapshotOptions,
 ): GeminiRecommendationSnapshotArtifact {
-	const prompts = normalizePromptRecords(
-		options.prompts ?? buildGeminiAnswerIntentPrompts(options.intakeArtifact),
-		"prompts",
-	);
-	const response = parseGeminiRawResponseEnvelope(options.response, "gemini response");
-	const snapshot = normalizeGeminiAnswerIntentResponse(response.rawResponse);
+	return createRecommendationSnapshotArtifact({
+		intakeArtifact: options.intakeArtifact,
+		response: options.response,
+		prompts: options.prompts ?? buildGeminiAnswerIntentPrompts(options.intakeArtifact),
+		capturedAt: options.capturedAt,
+		engine: GEMINI_RESEARCH_ENGINE,
+		rawResponseLabel: "gemini response",
+	});
+}
+
+export function createGrokRecommendationSnapshotArtifact(
+	options: CreateGrokRecommendationSnapshotOptions,
+): GrokRecommendationSnapshotArtifact {
+	return createRecommendationSnapshotArtifact({
+		intakeArtifact: options.intakeArtifact,
+		response: options.response,
+		prompts: options.prompts ?? buildGrokAnswerIntentPrompts(options.intakeArtifact),
+		capturedAt: options.capturedAt,
+		engine: GROK_RESEARCH_ENGINE,
+		rawResponseLabel: "grok response",
+	});
+}
+
+function createRecommendationSnapshotArtifact(options: {
+	intakeArtifact: TargetCompetitorArtifact;
+	response: GeminiRawResponseEnvelope;
+	prompts: readonly RecommendationPromptRecord[];
+	capturedAt?: string;
+	engine: RecommendationResearchEngine;
+	rawResponseLabel: string;
+}): GeminiRecommendationSnapshotArtifact {
+	const prompts = normalizePromptRecords(options.prompts, "prompts");
+	const response = parseResearchRawResponseEnvelope(options.response, options.rawResponseLabel);
+	const snapshot =
+		options.engine === GEMINI_RESEARCH_ENGINE
+			? normalizeGeminiAnswerIntentResponse(response.rawResponse)
+			: normalizeGrokAnswerIntentResponse(response.rawResponse);
 
 	return {
 		kind: GEMINI_RECOMMENDATION_SNAPSHOT_ARTIFACT_KIND,
 		schemaVersion: GEMINI_RECOMMENDATION_SNAPSHOT_ARTIFACT_SCHEMA_VERSION,
-		engine: GEMINI_RESEARCH_ENGINE,
+		engine: options.engine,
 		capturedAt: normalizeTimestamp(options.capturedAt ?? new Date().toISOString(), "capturedAt"),
 		context: {
 			target: options.intakeArtifact.target,
@@ -150,6 +197,10 @@ export function createGeminiRecommendationSnapshotArtifact(
 
 export function resolveGeminiRecommendationSnapshotArtifactPath(outputDir: string): string {
 	return resolve(outputDir, GEMINI_RECOMMENDATION_SNAPSHOT_ARTIFACT_RELATIVE_PATH);
+}
+
+export function resolveGrokRecommendationSnapshotArtifactPath(outputDir: string): string {
+	return resolve(outputDir, GROK_RECOMMENDATION_SNAPSHOT_ARTIFACT_RELATIVE_PATH);
 }
 
 export function serializeGeminiRecommendationSnapshotArtifact(artifact: GeminiRecommendationSnapshotArtifact): string {
@@ -166,26 +217,64 @@ export function writeGeminiRecommendationSnapshotArtifact(
 	return artifactPath;
 }
 
+export function writeGrokRecommendationSnapshotArtifact(
+	outputDir: string,
+	artifact: GrokRecommendationSnapshotArtifact,
+): string {
+	const artifactPath = resolveGrokRecommendationSnapshotArtifactPath(outputDir);
+	mkdirSync(dirname(artifactPath), { recursive: true });
+	writeFileSync(artifactPath, serializeGeminiRecommendationSnapshotArtifact(artifact), "utf8");
+	return artifactPath;
+}
+
 export function readGeminiRecommendationSnapshotArtifact(path: string): GeminiRecommendationSnapshotArtifact {
 	const parsed = JSON.parse(readFileSync(path, "utf8")) as unknown;
-	return parseGeminiRecommendationSnapshotArtifact(parsed, path);
+	return parseRecommendationSnapshotArtifact(parsed, path, GEMINI_RESEARCH_ENGINE);
+}
+
+export function readGrokRecommendationSnapshotArtifact(path: string): GrokRecommendationSnapshotArtifact {
+	const parsed = JSON.parse(readFileSync(path, "utf8")) as unknown;
+	return parseRecommendationSnapshotArtifact(parsed, path, GROK_RESEARCH_ENGINE);
 }
 
 export function readGeminiRawResponseFixture(path: string): GeminiRawResponseEnvelope {
+	return readRawResponseFixture(path, "Gemini");
+}
+
+export function readGrokRawResponseFixture(path: string): GrokRawResponseEnvelope {
+	return readRawResponseFixture(path, "Grok");
+}
+
+function readRawResponseFixture(path: string, engineLabel: string): GeminiRawResponseEnvelope {
 	let parsedFixture: unknown;
 	try {
 		parsedFixture = JSON.parse(readFileSync(path, "utf8")) as unknown;
 	} catch (error: unknown) {
 		const reason = error instanceof Error ? error.message : String(error);
-		throw new ResearchSnapshotValidationError(`Failed to read Gemini fixture at ${path}: ${reason}`);
+		throw new ResearchSnapshotValidationError(`Failed to read ${engineLabel} fixture at ${path}: ${reason}`);
 	}
 
-	return parseGeminiRawResponseEnvelope(parsedFixture, `gemini fixture at ${path}`);
+	return parseResearchRawResponseEnvelope(parsedFixture, `${engineLabel.toLowerCase()} fixture at ${path}`);
 }
 
 export function parseGeminiRecommendationSnapshotArtifact(
 	value: unknown,
 	sourceLabel = "gemini recommendation snapshot artifact",
+): GeminiRecommendationSnapshotArtifact {
+	return parseRecommendationSnapshotArtifact(value, sourceLabel, GEMINI_RESEARCH_ENGINE);
+}
+
+export function parseGrokRecommendationSnapshotArtifact(
+	value: unknown,
+	sourceLabel = "grok recommendation snapshot artifact",
+): GrokRecommendationSnapshotArtifact {
+	return parseRecommendationSnapshotArtifact(value, sourceLabel, GROK_RESEARCH_ENGINE);
+}
+
+function parseRecommendationSnapshotArtifact(
+	value: unknown,
+	sourceLabel: string,
+	engine: RecommendationResearchEngine,
 ): GeminiRecommendationSnapshotArtifact {
 	if (!isRecord(value)) {
 		throw new ResearchSnapshotValidationError(`${sourceLabel} must be an object`);
@@ -199,7 +288,7 @@ export function parseGeminiRecommendationSnapshotArtifact(
 		throw new ResearchSnapshotValidationError(`${sourceLabel} has unsupported schemaVersion`);
 	}
 
-	if (value.engine !== GEMINI_RESEARCH_ENGINE) {
+	if (value.engine !== engine) {
 		throw new ResearchSnapshotValidationError(`${sourceLabel} has unsupported engine`);
 	}
 
@@ -220,7 +309,7 @@ export function parseGeminiRecommendationSnapshotArtifact(
 	return {
 		kind: GEMINI_RECOMMENDATION_SNAPSHOT_ARTIFACT_KIND,
 		schemaVersion: GEMINI_RECOMMENDATION_SNAPSHOT_ARTIFACT_SCHEMA_VERSION,
-		engine: GEMINI_RESEARCH_ENGINE,
+		engine,
 		capturedAt: normalizeTimestamp(
 			expectString(value.capturedAt, `${sourceLabel}.capturedAt`),
 			`${sourceLabel}.capturedAt`,
@@ -230,7 +319,7 @@ export function parseGeminiRecommendationSnapshotArtifact(
 			competitors: contextArtifact.competitors,
 		},
 		prompts: normalizePromptRecords(value.prompts, `${sourceLabel}.prompts`),
-		response: parseGeminiRawResponseEnvelope(value.response, `${sourceLabel}.response`),
+		response: parseResearchRawResponseEnvelope(value.response, `${sourceLabel}.response`),
 		snapshot: parseNormalizedSnapshot(value.snapshot, `${sourceLabel}.snapshot`),
 	};
 }
@@ -239,6 +328,17 @@ export function parseGeminiRawResponseEnvelope(
 	value: unknown,
 	sourceLabel = "gemini raw response envelope",
 ): GeminiRawResponseEnvelope {
+	return parseResearchRawResponseEnvelope(value, sourceLabel);
+}
+
+export function parseGrokRawResponseEnvelope(
+	value: unknown,
+	sourceLabel = "grok raw response envelope",
+): GrokRawResponseEnvelope {
+	return parseResearchRawResponseEnvelope(value, sourceLabel);
+}
+
+function parseResearchRawResponseEnvelope(value: unknown, sourceLabel: string): GeminiRawResponseEnvelope {
 	if (!isRecord(value)) {
 		throw new ResearchSnapshotValidationError(`${sourceLabel} must be an object`);
 	}
@@ -304,19 +404,19 @@ function normalizePromptRecords(value: unknown, sourceLabel: string): readonly R
 	});
 }
 
-function parseGeminiPayload(rawResponse: string): NormalizedRecommendationSnapshot {
-	const normalizedRawResponse = normalizeNonEmptyText(rawResponse, "gemini raw response");
+function parseResearchPayload(rawResponse: string, engineLabel: string): NormalizedRecommendationSnapshot {
+	const normalizedRawResponse = normalizeNonEmptyText(rawResponse, `${engineLabel.toLowerCase()} raw response`);
 	const payload = parseJsonPayload(normalizedRawResponse);
 	if (!isRecord(payload)) {
-		throw new ResearchSnapshotValidationError("Gemini response payload must be a JSON object.");
+		throw new ResearchSnapshotValidationError(`${engineLabel} response payload must be a JSON object.`);
 	}
 
 	const summary = normalizeRequiredText(
-		expectString(payload.summary, "Gemini payload.summary"),
-		"Gemini payload.summary",
+		expectString(payload.summary, `${engineLabel} payload.summary`),
+		`${engineLabel} payload.summary`,
 	);
-	const questions = parseQuestions(payload.questions, "Gemini payload.questions");
-	const recommendations = parseRecommendations(payload.recommendations, "Gemini payload.recommendations");
+	const questions = parseQuestions(payload.questions, `${engineLabel} payload.questions`);
+	const recommendations = parseRecommendations(payload.recommendations, `${engineLabel} payload.recommendations`);
 
 	return {
 		summary,
@@ -344,7 +444,7 @@ function parseJsonPayload(rawResponse: string): unknown {
 		}
 	}
 
-	throw new ResearchSnapshotValidationError("Gemini response payload is not valid JSON.");
+	throw new ResearchSnapshotValidationError("Research response payload is not valid JSON.");
 }
 
 function parseQuestions(value: unknown, sourceLabel: string): readonly AnswerIntentQuestion[] {

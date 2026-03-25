@@ -14,7 +14,9 @@
     ],
     "research": [
       "canonical-gemini-answer-intent-snapshot",
-      "canonical-gemini-response"
+      "canonical-gemini-response",
+      "canonical-grok-answer-intent-snapshot",
+      "canonical-grok-response"
     ]
   },
   "sampleArtifacts": {

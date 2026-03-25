@@ -1,0 +1,91 @@
+{
+  "kind": "rankclaw/research/recommendation-snapshot",
+  "schemaVersion": 1,
+  "engine": "grok",
+  "capturedAt": "2026-03-25T00:00:00.000Z",
+  "context": {
+    "target": {
+      "id": "example-com",
+      "topic": "Running shoes",
+      "name": "example.com",
+      "site": {
+        "input": "Example.com/products?category=running",
+        "origin": "https://example.com",
+        "host": "example.com"
+      }
+    },
+    "competitors": [
+      {
+        "id": "fleet-foot",
+        "name": "Fleet Foot",
+        "site": {
+          "input": "https://fleetfoot.io/reviews",
+          "origin": "https://fleetfoot.io",
+          "host": "fleetfoot.io"
+        }
+      },
+      {
+        "id": "stride-labs",
+        "name": "Stride Labs",
+        "site": {
+          "input": "stridelabs.co",
+          "origin": "https://stridelabs.co",
+          "host": "stridelabs.co"
+        }
+      }
+    ]
+  },
+  "prompts": [
+    {
+      "id": "system-1",
+      "role": "system",
+      "content": "You are Rankclaw's answer-intent research assistant.\nReturn JSON only with this exact shape:\n{\"summary\": string, \"questions\": [{\"question\": string, \"intent\": string}], \"recommendations\": [{\"recommendation\": string, \"rationale\": string}]}\nDo not wrap the JSON in markdown."
+    },
+    {
+      "id": "user-1",
+      "role": "user",
+      "content": "Target topic: Running shoes\nTarget name: example.com\nTarget site: https://example.com\nCompetitors:\n1. Fleet Foot (https://fleetfoot.io)\n2. Stride Labs (https://stridelabs.co)\nIdentify high-intent customer questions and concrete recommendations for content and positioning."
+    }
+  ],
+  "response": {
+    "model": "grok-3-mini",
+    "rawResponse": "```json\n{\n  \"summary\": \"Grok emphasizes comparison intent around comfort trade-offs, terrain fit, and upgrade timing.\",\n  \"questions\": [\n    {\n      \"question\": \"Which running shoes balance cushioning and speed for half marathon training?\",\n      \"intent\": \"comparison\"\n    },\n    {\n      \"question\": \"Do I need trail running shoes for mixed road and gravel routes?\",\n      \"intent\": \"selection\"\n    },\n    {\n      \"question\": \"When should I replace running shoes if the outsole still looks fine?\",\n      \"intent\": \"replacement\"\n    }\n  ],\n  \"recommendations\": [\n    {\n      \"recommendation\": \"Create an upgrade guide for runners moving from daily trainers to race-day shoes\",\n      \"rationale\": \"Grok repeatedly frames the purchase decision as an upgrade path instead of a single one-off choice.\"\n    },\n    {\n      \"recommendation\": \"Add terrain-specific guidance for mixed road and gravel use cases\",\n      \"rationale\": \"The output highlights uncertainty around when traction and stability changes become worth paying for.\"\n    },\n    {\n      \"recommendation\": \"Explain replacement timing with mileage, wear patterns, and cushioning breakdown signals\",\n      \"rationale\": \"Replacement intent appears when visible wear and underfoot feel no longer line up for buyers.\"\n    }\n  ]\n}\n```"
+  },
+  "snapshot": {
+    "summary": "Grok emphasizes comparison intent around comfort trade-offs, terrain fit, and upgrade timing.",
+    "questions": [
+      {
+        "id": "do-i-need-trail-running-shoes-for-mixed-road-and-gravel-routes",
+        "question": "Do I need trail running shoes for mixed road and gravel routes?",
+        "intent": "selection"
+      },
+      {
+        "id": "when-should-i-replace-running-shoes-if-the-outsole-still-looks-fine",
+        "question": "When should I replace running shoes if the outsole still looks fine?",
+        "intent": "replacement"
+      },
+      {
+        "id": "which-running-shoes-balance-cushioning-and-speed-for-half-marathon-training",
+        "question": "Which running shoes balance cushioning and speed for half marathon training?",
+        "intent": "comparison"
+      }
+    ],
+    "recommendations": [
+      {
+        "id": "add-terrain-specific-guidance-for-mixed-road-and-gravel-use-cases",
+        "recommendation": "Add terrain-specific guidance for mixed road and gravel use cases",
+        "rationale": "The output highlights uncertainty around when traction and stability changes become worth paying for."
+      },
+      {
+        "id": "create-an-upgrade-guide-for-runners-moving-from-daily-trainers-to-race-day-shoes",
+        "recommendation": "Create an upgrade guide for runners moving from daily trainers to race-day shoes",
+        "rationale": "Grok repeatedly frames the purchase decision as an upgrade path instead of a single one-off choice."
+      },
+      {
+        "id": "explain-replacement-timing-with-mileage-wear-patterns-and-cushioning-breakdown-signals",
+        "recommendation": "Explain replacement timing with mileage, wear patterns, and cushioning breakdown signals",
+        "rationale": "Replacement intent appears when visible wear and underfoot feel no longer line up for buyers."
+      }
+    ]
+  }
+}

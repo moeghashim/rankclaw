@@ -168,3 +168,20 @@ Append-only learning log for commits and deploys. Add new entries only at the en
   - packages/core/src/lib/research.ts
   - packages/core/test/research.test.ts
   - progress.md
+## 2026-03-25T19:03:08Z
+- Trigger: commit
+- Learning: Reusing one normalized research snapshot model across Gemini and Grok keeps engine-specific fixture parsing isolated while preserving comparable downstream artifacts.
+- Context: feat(research): add grok snapshot capture
+- Branch: feat/10x-21-grok-snapshot
+- Actor: Codex Agent <codex@openai.com>
+- Changed Paths:
+  - packages/cli/README.md
+  - packages/cli/src/lib/namespaces/research.ts
+  - packages/cli/test/cli-smoke.test.ts
+  - packages/core/README.md
+  - packages/core/src/lib/research.ts
+  - packages/core/test/__snapshots__/fixture-harness/artifact-catalog.snap
+  - packages/core/test/fixtures/research/canonical-grok-answer-intent-snapshot.json
+  - packages/core/test/fixtures/research/canonical-grok-response.json
+  - packages/core/test/research.test.ts
+  - progress.md

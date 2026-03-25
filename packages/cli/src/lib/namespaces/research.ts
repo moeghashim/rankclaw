@@ -2,12 +2,15 @@ import { isAbsolute, resolve } from "node:path";
 
 import {
 	createGeminiRecommendationSnapshotArtifact,
+	createGrokRecommendationSnapshotArtifact,
 	IntakeInputValidationError,
 	ResearchSnapshotValidationError,
 	readGeminiRawResponseFixture,
+	readGrokRawResponseFixture,
 	readTargetCompetitorArtifact,
 	resolveTargetCompetitorArtifactPath,
 	writeGeminiRecommendationSnapshotArtifact,
+	writeGrokRecommendationSnapshotArtifact,
 } from "@rankclaw/core";
 
 import type { CliNamespace } from "../types.js";
@@ -22,6 +25,14 @@ interface ParsedGeminiArgs {
 	fixturePath: string;
 	intakeArtifactPath?: string;
 	capturedAt?: string;
+}
+
+interface ResearchSnapshotArtifact {
+	prompts: readonly { id: string; role: "system" | "user"; content: string }[];
+	snapshot: {
+		questions: readonly { id: string; question: string; intent: string }[];
+		recommendations: readonly { id: string; recommendation: string; rationale: string }[];
+	};
 }
 
 class ResearchCliArgumentError extends Error {
@@ -61,47 +72,48 @@ export const researchNamespace: CliNamespace = {
 				],
 			},
 			run(context, args, io) {
-				try {
-					const parsedArgs = parseGeminiArgs(args);
-					const fixturePath = resolveFromCwd(context.cwd, parsedArgs.fixturePath);
-					const intakeArtifactPath =
-						parsedArgs.intakeArtifactPath === undefined
-							? resolveTargetCompetitorArtifactPath(context.config.outputDir)
-							: resolveFromCwd(context.cwd, parsedArgs.intakeArtifactPath);
-
-					const intakeArtifact = readTargetCompetitorArtifact(intakeArtifactPath);
-					const fixtureResponse = readGeminiRawResponseFixture(fixturePath);
-					const artifact = createGeminiRecommendationSnapshotArtifact({
-						intakeArtifact,
-						response: fixtureResponse,
-						capturedAt: parsedArgs.capturedAt,
-					});
-					const artifactPath = writeGeminiRecommendationSnapshotArtifact(context.config.outputDir, artifact);
-
-					io.info(`Wrote Gemini research snapshot: ${artifactPath}`);
-					io.info(`Captured prompts: ${artifact.prompts.length}`);
-					io.info(`Normalized questions: ${artifact.snapshot.questions.length}`);
-					io.info(`Normalized recommendations: ${artifact.snapshot.recommendations.length}`);
-
-					return 0;
-				} catch (error: unknown) {
-					if (
-						error instanceof ResearchCliArgumentError ||
-						error instanceof IntakeInputValidationError ||
-						error instanceof ResearchSnapshotValidationError
-					) {
-						io.error(error.message);
-						io.info('Run "rankclaw research gemini --help" for usage.');
-						return 1;
-					}
-
-					if (error instanceof Error) {
-						io.error(error.message);
-						return 1;
-					}
-
-					throw error;
-				}
+				return runResearchCommand(context.cwd, context.config.outputDir, args, io, {
+					engineName: "Gemini",
+					helpCommand: "rankclaw research gemini --help",
+					readFixture: readGeminiRawResponseFixture,
+					createArtifact: createGeminiRecommendationSnapshotArtifact,
+					writeArtifact: writeGeminiRecommendationSnapshotArtifact,
+				});
+			},
+		},
+		{
+			name: "grok",
+			summary: "Capture Grok answer-intent output into a normalized research snapshot artifact.",
+			help: {
+				usage: "rankclaw research grok --fixture <path> [--intake-artifact <path>] [--captured-at <iso-timestamp>]",
+				options: [
+					{
+						flag: "--fixture <path>",
+						description: "Required fixture JSON containing Grok model + rawResponse text.",
+					},
+					{
+						flag: "--intake-artifact <path>",
+						description:
+							"Optional path to intake artifact (defaults to configured outputDir intake artifact path).",
+					},
+					{
+						flag: "--captured-at <iso-timestamp>",
+						description: "Optional capture timestamp override for deterministic fixture/testing flows.",
+					},
+				],
+				examples: [
+					"rankclaw research grok --fixture ./fixtures/grok-response.json",
+					"rankclaw research grok --fixture ./fixtures/grok-response.json --captured-at 2026-03-25T00:00:00.000Z",
+				],
+			},
+			run(context, args, io) {
+				return runResearchCommand(context.cwd, context.config.outputDir, args, io, {
+					engineName: "Grok",
+					helpCommand: "rankclaw research grok --help",
+					readFixture: readGrokRawResponseFixture,
+					createArtifact: createGrokRecommendationSnapshotArtifact,
+					writeArtifact: writeGrokRecommendationSnapshotArtifact,
+				});
 			},
 		},
 	],
@@ -162,6 +174,66 @@ function parseGeminiArgs(args: readonly string[]): ParsedGeminiArgs {
 		intakeArtifactPath,
 		capturedAt,
 	};
+}
+
+function runResearchCommand(
+	cwd: string,
+	outputDir: string,
+	args: readonly string[],
+	io: { info(message: string): void; error(message: string): void },
+	options: {
+		engineName: "Gemini" | "Grok";
+		helpCommand: string;
+		readFixture(path: string): { model: string; rawResponse: string };
+		createArtifact(input: {
+			intakeArtifact: ReturnType<typeof readTargetCompetitorArtifact>;
+			response: { model: string; rawResponse: string };
+			capturedAt?: string;
+		}): ResearchSnapshotArtifact;
+		writeArtifact(outputDir: string, artifact: ResearchSnapshotArtifact): string;
+	},
+): number {
+	try {
+		const parsedArgs = parseGeminiArgs(args);
+		const fixturePath = resolveFromCwd(cwd, parsedArgs.fixturePath);
+		const intakeArtifactPath =
+			parsedArgs.intakeArtifactPath === undefined
+				? resolveTargetCompetitorArtifactPath(outputDir)
+				: resolveFromCwd(cwd, parsedArgs.intakeArtifactPath);
+
+		const intakeArtifact = readTargetCompetitorArtifact(intakeArtifactPath);
+		const fixtureResponse = options.readFixture(fixturePath);
+		const artifact = options.createArtifact({
+			intakeArtifact,
+			response: fixtureResponse,
+			capturedAt: parsedArgs.capturedAt,
+		});
+		const artifactPath = options.writeArtifact(outputDir, artifact);
+
+		io.info(`Wrote ${options.engineName} research snapshot: ${artifactPath}`);
+		io.info(`Captured prompts: ${artifact.prompts.length}`);
+		io.info(`Normalized questions: ${artifact.snapshot.questions.length}`);
+		io.info(`Normalized recommendations: ${artifact.snapshot.recommendations.length}`);
+
+		return 0;
+	} catch (error: unknown) {
+		if (
+			error instanceof ResearchCliArgumentError ||
+			error instanceof IntakeInputValidationError ||
+			error instanceof ResearchSnapshotValidationError
+		) {
+			io.error(error.message);
+			io.info(`Run "${options.helpCommand}" for usage.`);
+			return 1;
+		}
+
+		if (error instanceof Error) {
+			io.error(error.message);
+			return 1;
+		}
+
+		throw error;
+	}
 }
 
 function resolveFromCwd(cwd: string, pathInput: string): string {
