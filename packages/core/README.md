@@ -2,6 +2,11 @@
 
 Public entrypoint: `src/index.ts` (re-exports only).
 
+Shared intake utilities include:
+- target + competitor input normalization
+- deterministic intake artifact serialization
+- helper paths for downstream workflow reuse
+
 Test support for canonical artifact fixtures lives in:
 - `test/fixtures`
 - `test/__snapshots__`
