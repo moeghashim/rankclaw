@@ -1,0 +1,16 @@
+{
+  "artifactType": "answer-hub",
+  "scores": {
+    "specificity": 4.5,
+    "citationReadiness": 4.2,
+    "actionability": 4.7
+  },
+  "highlights": [
+    "TL;DR answers the primary query in the first paragraph",
+    "Comparison table includes buyer-relevant specs",
+    "FAQ list maps directly to answer-intent prompts"
+  ],
+  "gaps": [
+    "No explicit freshness note for the current year"
+  ]
+}

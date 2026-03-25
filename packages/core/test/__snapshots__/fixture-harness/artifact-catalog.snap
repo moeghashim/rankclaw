@@ -1,0 +1,63 @@
+{
+  "fixtures": {
+    "brief": [
+      "competitor-review-brief"
+    ],
+    "crawl": [
+      "serp-title-capture"
+    ],
+    "eval": [
+      "answer-hub-scorecard"
+    ]
+  },
+  "sampleArtifacts": {
+    "brief": {
+      "citations": [
+        "G2",
+        "Product Hunt",
+        "Vendor changelog"
+      ],
+      "competitor": "AuthoredUp",
+      "pageType": "review",
+      "requiredSections": [
+        "TL;DR verdict",
+        "Feature comparison table",
+        "Who should use it",
+        "Alternatives"
+      ],
+      "targetKeyword": "authoredup review 2026"
+    },
+    "crawl": {
+      "fetchedAt": "2026-03-25T00:00:00.000Z",
+      "headings": [
+        "Best SEO Tools 2026",
+        "Comparison Table",
+        "Frequently Asked Questions"
+      ],
+      "metaDescription": "Independent review of the best SEO tools for technical audits, content ops, and answer-engine visibility.",
+      "schemaTypes": [
+        "FAQPage",
+        "ItemList"
+      ],
+      "status": 200,
+      "title": "Best SEO Tools 2026 | Rankclaw",
+      "url": "https://rankclaw.dev/guides/best-seo-tools-2026"
+    },
+    "eval": {
+      "artifactType": "answer-hub",
+      "gaps": [
+        "No explicit freshness note for the current year"
+      ],
+      "highlights": [
+        "TL;DR answers the primary query in the first paragraph",
+        "Comparison table includes buyer-relevant specs",
+        "FAQ list maps directly to answer-intent prompts"
+      ],
+      "scores": {
+        "actionability": 4.7,
+        "citationReadiness": 4.2,
+        "specificity": 4.5
+      }
+    }
+  }
+}
