@@ -25,6 +25,7 @@ Validation is enforced by `npm run docs:list`.
 - `docs/linear-backlog.md`: approved Stage 2 backlog and Stage 3 entry notes.
 - `docs/delivery-process.md`: three-stage approval and execution process.
 - `docs/linear-story-template.md`: canonical story template for Linear issues.
+- `docs/testing-fixtures.md`: fixture and snapshot layout for deterministic artifact tests.
 - `docs/evals/project-scorecard.md`: reusable project-level evaluation rubric.
 - `docs/agent-workflow.md`: codex-first agent workflow and guardrails.
 - `docs/commands.md`: in-repo command prompt index.
