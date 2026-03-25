@@ -8,8 +8,12 @@ const REQUIRED_PATHS = [
 	"docs/README.md",
 	"docs/agent-workflow.md",
 	"docs/commands.md",
+	"docs/delivery-process.md",
+	"docs/linear-story-template.md",
 	"docs/deploying-to-vercel.md",
 	"progress.md",
+	".github/ISSUE_TEMPLATE/feature-story.md",
+	".github/pull_request_template.md",
 	".codex/prompts/pickup.md",
 	".codex/prompts/handoff.md",
 	".codex/prompts/build-feature.md",
@@ -55,6 +59,7 @@ if (!existsSync("package.json")) {
 const packageJson = JSON.parse(readFileSync("package.json", "utf8"));
 const requiredScripts = [
 	"docs:list",
+	"delivery:check",
 	"agent:verify-sync",
 	"agent:sync",
 	"agent:check",
@@ -68,6 +73,7 @@ for (const scriptName of requiredScripts) {
 }
 
 execSync("npm run docs:list", { stdio: "inherit" });
+execSync("npm run delivery:check", { stdio: "inherit" });
 execSync("npm run agent:verify-sync", { stdio: "inherit" });
 
 console.log("agent-check: passed.");

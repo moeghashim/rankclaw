@@ -44,3 +44,8 @@ Each story must complete:
 8. workpad and PR evidence update
 
 The next story does not begin until the current one satisfies the done gate.
+
+Validation and Eval are mandatory in both the Linear story shape and the PR
+template. `npm run agent:check` includes `npm run delivery:check`, which fails
+if the managed workflow docs or templates are removed or lose the required
+sections.
