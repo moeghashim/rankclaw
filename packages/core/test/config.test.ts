@@ -67,3 +67,18 @@ test("loadRankclawConfig lets environment variables override file values", () =>
 		rmSync(workspaceRoot, { recursive: true, force: true });
 	}
 });
+
+test("loadRankclawConfig rejects array payloads in rankclaw.config.json", () => {
+	const workspaceRoot = mkdtempSync(join(tmpdir(), "rankclaw-core-config-"));
+
+	try {
+		writeFileSync(join(workspaceRoot, "rankclaw.config.json"), JSON.stringify([], null, 2), "utf8");
+
+		assert.throws(
+			() => loadRankclawConfig({ cwd: workspaceRoot, env: {} }),
+			/error: rankclaw\.config\.json .* must contain a JSON object/i,
+		);
+	} finally {
+		rmSync(workspaceRoot, { recursive: true, force: true });
+	}
+});
