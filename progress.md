@@ -147,3 +147,14 @@ Append-only learning log for commits and deploys. Add new entries only at the en
   - packages/core/test/fixtures/intake/canonical-target-and-competitors.json
   - packages/core/test/intake.test.ts
   - packages/core/test/support/fixtures.ts
+## 2026-03-25T18:05:00.000Z
+- Trigger: commit
+- Learning: Intake validation must dedupe by host and normalized name so scheme changes and non-Latin duplicates cannot bypass competitor guards.
+- Context: fix(intake): tighten competitor dedupe guards
+- Branch: feat/10x-19-intake-cli-inputs
+- Actor: Codex Agent <codex@openai.com>
+- Changed Paths:
+  - packages/core/src/lib/intake.ts
+  - packages/core/test/fixtures/intake/canonical-target-and-competitors.json
+  - packages/core/test/intake.test.ts
+  - progress.md

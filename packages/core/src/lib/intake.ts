@@ -70,29 +70,30 @@ export function normalizeTargetCompetitorInput(input: TargetCompetitorInput): Ta
 		throw new IntakeInputValidationError("At least one competitor is required.");
 	}
 
-	const competitorSiteOrigins = new Set<string>();
-	const competitorIds = new Set<string>();
+	const competitorHosts = new Set<string>();
+	const competitorNames = new Set<string>();
 	const normalizedCompetitors = input.competitors.map((competitor, index) => {
 		const competitorName = normalizeRequiredText(competitor.name, `competitor ${index + 1} name`);
 		const competitorSite = normalizeSite(competitor.site, `competitor ${index + 1} site`);
 		const competitorId = toSlug(competitorName, `competitor-${index + 1}`);
+		const normalizedCompetitorName = competitorName.toLocaleLowerCase();
 
-		if (competitorSite.origin === targetSite.origin) {
+		if (competitorSite.host === targetSite.host) {
 			throw new IntakeInputValidationError(
-				`Competitor "${competitorName}" uses the same site as the target (${targetSite.origin}).`,
+				`Competitor "${competitorName}" uses the same site as the target (${targetSite.host}).`,
 			);
 		}
 
-		if (competitorSiteOrigins.has(competitorSite.origin)) {
-			throw new IntakeInputValidationError(`Duplicate competitor site is not allowed: ${competitorSite.origin}`);
+		if (competitorHosts.has(competitorSite.host)) {
+			throw new IntakeInputValidationError(`Duplicate competitor site is not allowed: ${competitorSite.host}`);
 		}
 
-		if (competitorIds.has(competitorId)) {
+		if (competitorNames.has(normalizedCompetitorName)) {
 			throw new IntakeInputValidationError(`Duplicate competitor name is not allowed: ${competitorName}`);
 		}
 
-		competitorSiteOrigins.add(competitorSite.origin);
-		competitorIds.add(competitorId);
+		competitorHosts.add(competitorSite.host);
+		competitorNames.add(normalizedCompetitorName);
 
 		return {
 			id: competitorId,
