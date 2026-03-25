@@ -27,6 +27,7 @@ test("artifact harness snapshot remains readable for future workflow diffs", () 
 	const snapshotPayload = {
 		fixtures: {
 			intake: listArtifactFixtures("intake"),
+			sources: listArtifactFixtures("sources"),
 			research: listArtifactFixtures("research"),
 			crawl: listArtifactFixtures("crawl"),
 			brief: listArtifactFixtures("brief"),
@@ -34,6 +35,7 @@ test("artifact harness snapshot remains readable for future workflow diffs", () 
 		},
 		sampleArtifacts: {
 			intake: loadArtifactFixture("intake", "canonical-target-and-competitors"),
+			sources: loadArtifactFixture("sources", "canonical-imported-sources"),
 			research: loadArtifactFixture("research", "canonical-gemini-answer-intent-snapshot"),
 			crawl: loadArtifactFixture("crawl", "serp-title-capture"),
 			brief: loadArtifactFixture("brief", "competitor-review-brief"),

@@ -1,7 +1,15 @@
+import { isAbsolute, resolve } from "node:path";
+
 import {
 	type IntakeCompetitorInput,
 	IntakeInputValidationError,
+	normalizeSourceImportInput,
 	normalizeTargetCompetitorInput,
+	readTargetCompetitorArtifact,
+	resolveTargetCompetitorArtifactPath,
+	type SourceImportCompetitorSourceInput,
+	SourceImportValidationError,
+	writeSourceImportArtifact,
 	writeTargetCompetitorArtifact,
 } from "@rankclaw/core";
 
@@ -12,13 +20,24 @@ const TARGET_SITE_FLAG = "--target-site";
 const TARGET_NAME_FLAG = "--target-name";
 const COMPETITOR_FLAG = "--competitor";
 
-const SUPPORTED_FLAGS = new Set([TARGET_TOPIC_FLAG, TARGET_SITE_FLAG, TARGET_NAME_FLAG, COMPETITOR_FLAG]);
+const TARGET_SOURCE_FLAG = "--target-source";
+const COMPETITOR_SOURCE_FLAG = "--competitor-source";
+const INTAKE_ARTIFACT_FLAG = "--intake-artifact";
+
+const COLLECT_SUPPORTED_FLAGS = new Set([TARGET_TOPIC_FLAG, TARGET_SITE_FLAG, TARGET_NAME_FLAG, COMPETITOR_FLAG]);
+const SOURCE_IMPORT_SUPPORTED_FLAGS = new Set([TARGET_SOURCE_FLAG, COMPETITOR_SOURCE_FLAG, INTAKE_ARTIFACT_FLAG]);
 
 interface ParsedCollectArgs {
 	targetTopic: string;
 	targetSite: string;
 	targetName?: string;
 	competitors: readonly IntakeCompetitorInput[];
+}
+
+interface ParsedSourceArgs {
+	targetSources: readonly string[];
+	competitorSources: readonly SourceImportCompetitorSourceInput[];
+	intakeArtifactPath?: string;
 }
 
 class IntakeCliArgumentError extends Error {
@@ -93,6 +112,92 @@ export const intakeNamespace: CliNamespace = {
 				}
 			},
 		},
+		{
+			name: "sources",
+			summary: "Import external review/source URLs into normalized target and competitor source records.",
+			help: {
+				usage: "rankclaw intake sources [--target-source <url>] [--competitor-source <competitor-id|url>] [--intake-artifact <path>]",
+				options: [
+					{
+						flag: "--target-source <url>",
+						description: "Optional repeatable source URL associated with the target.",
+					},
+					{
+						flag: "--competitor-source <competitor-id|url>",
+						description: "Optional repeatable source URL associated with a competitor id from intake.",
+					},
+					{
+						flag: "--intake-artifact <path>",
+						description:
+							"Optional path to target/competitor intake artifact (defaults to configured outputDir intake artifact path).",
+					},
+				],
+				examples: [
+					"rankclaw intake sources --target-source https://example.com/reviews/running-shoes --competitor-source fleet-foot|https://fleetfoot.io/reviews/best-running-shoes",
+				],
+			},
+			run(context, args, io) {
+				try {
+					const parsedArgs = parseSourceArgs(args);
+					const intakeArtifactPath =
+						parsedArgs.intakeArtifactPath === undefined
+							? resolveTargetCompetitorArtifactPath(context.config.outputDir)
+							: resolveFromCwd(context.cwd, parsedArgs.intakeArtifactPath);
+					const intakeArtifact = readTargetCompetitorArtifact(intakeArtifactPath);
+					const artifact = normalizeSourceImportInput({
+						intakeArtifact,
+						targetSources: parsedArgs.targetSources,
+						competitorSources: parsedArgs.competitorSources,
+					});
+					const artifactPath = writeSourceImportArtifact(context.config.outputDir, artifact);
+					const recordsById = new Map(artifact.sources.map((record) => [record.id, record]));
+
+					io.info(`Wrote source import artifact: ${artifactPath}`);
+					io.info(`Accepted URLs: ${artifact.summary.accepted}`);
+					io.info(`Duplicate URLs: ${artifact.summary.duplicates}`);
+					io.info(`Invalid URLs: ${artifact.summary.invalid}`);
+
+					for (const outcome of artifact.outcomes) {
+						if (outcome.status === "accepted") {
+							const record = outcome.recordId === undefined ? undefined : recordsById.get(outcome.recordId);
+							const normalizedUrl = record === undefined ? outcome.input : record.url.href;
+							io.info(`ACCEPTED ${outcome.owner.type}:${outcome.owner.id} ${outcome.input} -> ${normalizedUrl}`);
+							continue;
+						}
+
+						if (outcome.status === "duplicate") {
+							io.info(
+								`DUPLICATE ${outcome.owner.type}:${outcome.owner.id} ${outcome.input} (${outcome.reason ?? "duplicate URL"})`,
+							);
+							continue;
+						}
+
+						io.info(
+							`INVALID ${outcome.owner.type}:${outcome.owner.id} ${outcome.input} (${outcome.reason ?? "invalid URL"})`,
+						);
+					}
+
+					return artifact.summary.accepted > 0 ? 0 : 1;
+				} catch (error: unknown) {
+					if (
+						error instanceof IntakeCliArgumentError ||
+						error instanceof IntakeInputValidationError ||
+						error instanceof SourceImportValidationError
+					) {
+						io.error(error.message);
+						io.info('Run "rankclaw intake sources --help" for usage.');
+						return 1;
+					}
+
+					if (error instanceof Error) {
+						io.error(error.message);
+						return 1;
+					}
+
+					throw error;
+				}
+			},
+		},
 	],
 };
 
@@ -104,7 +209,7 @@ function parseCollectArgs(args: readonly string[]): ParsedCollectArgs {
 
 	for (let index = 0; index < args.length; index += 1) {
 		const flag = args[index];
-		if (!SUPPORTED_FLAGS.has(flag)) {
+		if (!COLLECT_SUPPORTED_FLAGS.has(flag)) {
 			throw new IntakeCliArgumentError(`Unknown argument "${flag}".`);
 		}
 
@@ -167,6 +272,59 @@ function parseCollectArgs(args: readonly string[]): ParsedCollectArgs {
 	};
 }
 
+function parseSourceArgs(args: readonly string[]): ParsedSourceArgs {
+	const targetSources: string[] = [];
+	const competitorSources: SourceImportCompetitorSourceInput[] = [];
+	let intakeArtifactPath: string | undefined;
+
+	for (let index = 0; index < args.length; index += 1) {
+		const flag = args[index];
+		if (!SOURCE_IMPORT_SUPPORTED_FLAGS.has(flag)) {
+			throw new IntakeCliArgumentError(`Unknown argument "${flag}".`);
+		}
+
+		const value = args[index + 1];
+		if (value === undefined || value.startsWith("--")) {
+			throw new IntakeCliArgumentError(`Expected a value after ${flag}.`);
+		}
+
+		switch (flag) {
+			case TARGET_SOURCE_FLAG: {
+				targetSources.push(value);
+				break;
+			}
+			case COMPETITOR_SOURCE_FLAG: {
+				competitorSources.push(parseCompetitorSourceValue(value));
+				break;
+			}
+			case INTAKE_ARTIFACT_FLAG: {
+				if (intakeArtifactPath !== undefined) {
+					throw new IntakeCliArgumentError(`${INTAKE_ARTIFACT_FLAG} can only be provided once.`);
+				}
+				intakeArtifactPath = value;
+				break;
+			}
+			default: {
+				throw new IntakeCliArgumentError(`Unknown argument "${flag}".`);
+			}
+		}
+
+		index += 1;
+	}
+
+	if (targetSources.length === 0 && competitorSources.length === 0) {
+		throw new IntakeCliArgumentError(
+			`At least one ${TARGET_SOURCE_FLAG} or ${COMPETITOR_SOURCE_FLAG} value is required.`,
+		);
+	}
+
+	return {
+		targetSources,
+		competitorSources,
+		intakeArtifactPath,
+	};
+}
+
 function parseCompetitorValue(value: string): IntakeCompetitorInput {
 	const firstDelimiter = value.indexOf("|");
 	const lastDelimiter = value.lastIndexOf("|");
@@ -182,4 +340,28 @@ function parseCompetitorValue(value: string): IntakeCompetitorInput {
 		name,
 		site,
 	};
+}
+
+function parseCompetitorSourceValue(value: string): SourceImportCompetitorSourceInput {
+	const firstDelimiter = value.indexOf("|");
+	const lastDelimiter = value.lastIndexOf("|");
+
+	if (firstDelimiter <= 0 || firstDelimiter !== lastDelimiter || firstDelimiter === value.length - 1) {
+		throw new IntakeCliArgumentError(
+			`Expected ${COMPETITOR_SOURCE_FLAG} value in "competitor-id|url" format, received "${value}".`,
+		);
+	}
+
+	return {
+		competitorId: value.slice(0, firstDelimiter),
+		url: value.slice(firstDelimiter + 1),
+	};
+}
+
+function resolveFromCwd(cwd: string, pathInput: string): string {
+	if (isAbsolute(pathInput)) {
+		return pathInput;
+	}
+
+	return resolve(cwd, pathInput);
 }

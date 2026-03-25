@@ -1,0 +1,153 @@
+{
+  "kind": "rankclaw/intake/source-records",
+  "schemaVersion": 1,
+  "target": {
+    "id": "example-com",
+    "topic": "Running shoes",
+    "name": "example.com",
+    "site": {
+      "input": "Example.com/products?category=running",
+      "origin": "https://example.com",
+      "host": "example.com"
+    }
+  },
+  "competitors": [
+    {
+      "id": "fleet-foot",
+      "name": "Fleet Foot",
+      "site": {
+        "input": "https://fleetfoot.io/reviews",
+        "origin": "https://fleetfoot.io",
+        "host": "fleetfoot.io"
+      }
+    },
+    {
+      "id": "stride-labs",
+      "name": "Stride Labs",
+      "site": {
+        "input": "stridelabs.co",
+        "origin": "https://stridelabs.co",
+        "host": "stridelabs.co"
+      }
+    }
+  ],
+  "sources": [
+    {
+      "id": "target-example-com-example-com-reviews-running-shoes",
+      "owner": {
+        "type": "target",
+        "id": "example-com",
+        "name": "example.com"
+      },
+      "input": "https://example.com/reviews/running-shoes?utm_source=newsletter",
+      "url": {
+        "href": "https://example.com/reviews/running-shoes",
+        "origin": "https://example.com",
+        "host": "example.com",
+        "pathname": "/reviews/running-shoes",
+        "search": ""
+      }
+    },
+    {
+      "id": "competitor-fleet-foot-fleetfoot-io-reviews-best-running-shoes",
+      "owner": {
+        "type": "competitor",
+        "id": "fleet-foot",
+        "name": "Fleet Foot"
+      },
+      "input": "https://fleetfoot.io/reviews/best-running-shoes",
+      "url": {
+        "href": "https://fleetfoot.io/reviews/best-running-shoes",
+        "origin": "https://fleetfoot.io",
+        "host": "fleetfoot.io",
+        "pathname": "/reviews/best-running-shoes",
+        "search": ""
+      }
+    },
+    {
+      "id": "competitor-stride-labs-stridelabs-co-blog-carbon-plate-guide-a-1-b-2",
+      "owner": {
+        "type": "competitor",
+        "id": "stride-labs",
+        "name": "Stride Labs"
+      },
+      "input": "https://stridelabs.co/blog/carbon-plate-guide?b=2&a=1",
+      "url": {
+        "href": "https://stridelabs.co/blog/carbon-plate-guide?a=1&b=2",
+        "origin": "https://stridelabs.co",
+        "host": "stridelabs.co",
+        "pathname": "/blog/carbon-plate-guide",
+        "search": "?a=1&b=2"
+      }
+    }
+  ],
+  "outcomes": [
+    {
+      "owner": {
+        "type": "target",
+        "id": "example-com",
+        "name": "example.com"
+      },
+      "input": "https://example.com/reviews/running-shoes?utm_source=newsletter",
+      "status": "accepted",
+      "recordId": "target-example-com-example-com-reviews-running-shoes"
+    },
+    {
+      "owner": {
+        "type": "target",
+        "id": "example-com",
+        "name": "example.com"
+      },
+      "input": "example.com/reviews/running-shoes/",
+      "status": "duplicate",
+      "reason": "Duplicate source URL for target \"example.com\".",
+      "recordId": "target-example-com-example-com-reviews-running-shoes"
+    },
+    {
+      "owner": {
+        "type": "target",
+        "id": "example-com",
+        "name": "example.com"
+      },
+      "input": "https://",
+      "status": "invalid",
+      "reason": "Expected target source URL 3 to be a valid URL or hostname."
+    },
+    {
+      "owner": {
+        "type": "competitor",
+        "id": "fleet-foot",
+        "name": "Fleet Foot"
+      },
+      "input": "https://fleetfoot.io/reviews/best-running-shoes",
+      "status": "accepted",
+      "recordId": "competitor-fleet-foot-fleetfoot-io-reviews-best-running-shoes"
+    },
+    {
+      "owner": {
+        "type": "competitor",
+        "id": "fleet-foot",
+        "name": "Fleet Foot"
+      },
+      "input": "https://fleetfoot.io/reviews/best-running-shoes?utm_medium=email",
+      "status": "duplicate",
+      "reason": "Duplicate source URL for competitor \"Fleet Foot\".",
+      "recordId": "competitor-fleet-foot-fleetfoot-io-reviews-best-running-shoes"
+    },
+    {
+      "owner": {
+        "type": "competitor",
+        "id": "stride-labs",
+        "name": "Stride Labs"
+      },
+      "input": "https://stridelabs.co/blog/carbon-plate-guide?b=2&a=1",
+      "status": "accepted",
+      "recordId": "competitor-stride-labs-stridelabs-co-blog-carbon-plate-guide-a-1-b-2"
+    }
+  ],
+  "summary": {
+    "accepted": 3,
+    "duplicates": 2,
+    "invalid": 1
+  }
+}

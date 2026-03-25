@@ -185,3 +185,41 @@ Append-only learning log for commits and deploys. Add new entries only at the en
   - packages/core/test/fixtures/research/canonical-grok-response.json
   - packages/core/test/research.test.ts
   - progress.md
+## 2026-03-25T21:39:39.826Z
+- Trigger: commit
+- Learning: Source imports should canonicalize URLs and preserve accepted, duplicate, and invalid outcomes so downstream crawl and brief flows can reuse deterministic records.
+- Context: feat(sources): import reusable source URL records
+- Branch: moe/10x-22-sources-import-external-review-and-source-urls-into-reusable
+- Actor: unknown <unknown>
+- Changed Paths:
+  - packages/cli/README.md
+  - packages/cli/src/lib/namespaces/intake.ts
+  - packages/cli/test/cli-smoke.test.ts
+  - packages/core/README.md
+  - packages/core/src/index.ts
+  - packages/core/src/lib/sources.ts
+  - packages/core/test/__snapshots__/fixture-harness/artifact-catalog.snap
+  - packages/core/test/fixture-harness.test.ts
+  - packages/core/test/fixtures/README.md
+  - packages/core/test/fixtures/sources/canonical-imported-sources.json
+  - packages/core/test/support/fixtures.ts
+  - packages/core/test/sources.test.ts
+## 2026-03-25T21:39:45.142Z
+- Trigger: commit
+- Learning: Source imports should canonicalize URLs and preserve accepted, duplicate, and invalid outcomes so downstream crawl and brief flows can reuse deterministic records.
+- Context: feat(sources): import reusable source URL records
+- Branch: moe/10x-22-sources-import-external-review-and-source-urls-into-reusable
+- Actor: Codex Agent <codex@openai.com>
+- Changed Paths:
+  - packages/cli/README.md
+  - packages/cli/src/lib/namespaces/intake.ts
+  - packages/cli/test/cli-smoke.test.ts
+  - packages/core/README.md
+  - packages/core/src/index.ts
+  - packages/core/src/lib/sources.ts
+  - packages/core/test/__snapshots__/fixture-harness/artifact-catalog.snap
+  - packages/core/test/fixture-harness.test.ts
+  - packages/core/test/fixtures/README.md
+  - packages/core/test/fixtures/sources/canonical-imported-sources.json
+  - packages/core/test/support/fixtures.ts
+  - packages/core/test/sources.test.ts
