@@ -1,0 +1,34 @@
+{
+  "kind": "rankclaw/intake/target-competitors",
+  "schemaVersion": 1,
+  "target": {
+    "id": "example-com",
+    "topic": "Running shoes",
+    "name": "example.com",
+    "site": {
+      "input": "Example.com/products?category=running",
+      "origin": "https://example.com",
+      "host": "example.com"
+    }
+  },
+  "competitors": [
+    {
+      "id": "fleet-foot",
+      "name": "Fleet Foot",
+      "site": {
+        "input": "https://fleetfoot.io/reviews",
+        "origin": "https://fleetfoot.io",
+        "host": "fleetfoot.io"
+      }
+    },
+    {
+      "id": "stride-labs",
+      "name": "Stride Labs",
+      "site": {
+        "input": "stridelabs.co",
+        "origin": "https://stridelabs.co",
+        "host": "stridelabs.co"
+      }
+    }
+  ]
+}
