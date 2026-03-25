@@ -43,14 +43,18 @@ export function renderNamespaceHelp(namespace: CliNamespace): string {
 }
 
 export function renderCommandHelp(namespace: CliNamespace, command: CliCommand): string {
-	return [
-		`Command: ${namespace.name} ${command.name}`,
-		"",
-		"Usage:",
-		`  rankclaw ${namespace.name} ${command.name} [options]`,
-		"",
-		command.summary,
-	].join("\n");
+	const usageLine = command.help?.usage ?? `rankclaw ${namespace.name} ${command.name} [options]`;
+	const lines = [`Command: ${namespace.name} ${command.name}`, "", "Usage:", `  ${usageLine}`, "", command.summary];
+
+	if (command.help?.options !== undefined && command.help.options.length > 0) {
+		lines.push("", "Options:", formatRows(command.help.options.map((option) => [option.flag, option.description])));
+	}
+
+	if (command.help?.examples !== undefined && command.help.examples.length > 0) {
+		lines.push("", "Examples:", ...command.help.examples.map((example) => `  ${example}`));
+	}
+
+	return lines.join("\n");
 }
 
 function formatRows(rows: readonly (readonly [string, string])[]): string {
