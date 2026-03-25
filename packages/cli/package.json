@@ -1,11 +1,14 @@
 {
-	"name": "@rankclaw/core",
+	"name": "@rankclaw/cli",
 	"version": "0.0.2",
-	"description": "Shared domain logic for Rankclaw",
+	"description": "Command-line operator entrypoint for Rankclaw workflows",
 	"license": "MIT",
 	"type": "module",
 	"main": "./dist/index.js",
 	"types": "./dist/index.d.ts",
+	"bin": {
+		"rankclaw": "./dist/bin/rankclaw.js"
+	},
 	"files": [
 		"dist/**/*",
 		"README.md",
@@ -13,10 +16,14 @@
 	],
 	"scripts": {
 		"clean": "rm -rf dist",
+		"prebuild": "npm run build --workspace @rankclaw/core",
 		"build": "tsgo -p tsconfig.build.json",
 		"dev": "tsgo -p tsconfig.build.json --watch --preserveWatchOutput",
 		"test": "tsx --test test/*.test.ts",
 		"prepublishOnly": "npm run clean && npm run build"
+	},
+	"dependencies": {
+		"@rankclaw/core": "0.0.2"
 	},
 	"engines": {
 		"node": ">=20.0.0"

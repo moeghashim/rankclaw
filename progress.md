@@ -77,3 +77,31 @@ Append-only learning log for commits and deploys. Add new entries only at the en
   - scripts
   - .nvmrc
   - apps
+## 2026-03-25T02:18:20.689Z
+- Trigger: commit
+- Learning: A namespace-first CLI scaffold plus a shared core config loader keeps future workflow commands additive while preserving clean workspace build/test gates.
+- Context: feat(cli): scaffold rankclaw command runner
+- Branch: feat/10x-16-cli-scaffold
+- Actor: unknown <unknown>
+- Changed Paths:
+  - README.md
+  - package-lock.json
+  - packages/core/package.json
+  - packages/core/src/index.ts
+  - packages/core/src/lib/config.ts
+  - packages/core/test/config.test.ts
+  - packages/cli
+## 2026-03-25T02:18:31.030Z
+- Trigger: commit
+- Learning: A namespace-first CLI scaffold plus a shared core config loader keeps future workflow commands additive while preserving clean workspace build/test gates.
+- Context: feat(cli): scaffold rankclaw command runner
+- Branch: feat/10x-16-cli-scaffold
+- Actor: Moe Ghashim <mohanadgh@gmail.com>
+- Changed Paths:
+  - README.md
+  - package-lock.json
+  - packages/core/package.json
+  - packages/core/src/index.ts
+  - packages/core/src/lib/config.ts
+  - packages/core/test/config.test.ts
+  - packages/cli
