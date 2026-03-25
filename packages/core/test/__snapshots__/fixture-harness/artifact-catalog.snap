@@ -11,6 +11,10 @@
     ],
     "intake": [
       "canonical-target-and-competitors"
+    ],
+    "research": [
+      "canonical-gemini-answer-intent-snapshot",
+      "canonical-gemini-response"
     ]
   },
   "sampleArtifacts": {
@@ -94,6 +98,97 @@
           "origin": "https://example.com"
         },
         "topic": "Running shoes"
+      }
+    },
+    "research": {
+      "capturedAt": "2026-03-25T00:00:00.000Z",
+      "context": {
+        "competitors": [
+          {
+            "id": "fleet-foot",
+            "name": "Fleet Foot",
+            "site": {
+              "host": "fleetfoot.io",
+              "input": "https://fleetfoot.io/reviews",
+              "origin": "https://fleetfoot.io"
+            }
+          },
+          {
+            "id": "stride-labs",
+            "name": "Stride Labs",
+            "site": {
+              "host": "stridelabs.co",
+              "input": "stridelabs.co",
+              "origin": "https://stridelabs.co"
+            }
+          }
+        ],
+        "target": {
+          "id": "example-com",
+          "name": "example.com",
+          "site": {
+            "host": "example.com",
+            "input": "Example.com/products?category=running",
+            "origin": "https://example.com"
+          },
+          "topic": "Running shoes"
+        }
+      },
+      "engine": "gemini",
+      "kind": "rankclaw/research/recommendation-snapshot",
+      "prompts": [
+        {
+          "content": "You are Rankclaw's answer-intent research assistant.\nReturn JSON only with this exact shape:\n{\"summary\": string, \"questions\": [{\"question\": string, \"intent\": string}], \"recommendations\": [{\"recommendation\": string, \"rationale\": string}]}\nDo not wrap the JSON in markdown.",
+          "id": "system-1",
+          "role": "system"
+        },
+        {
+          "content": "Target topic: Running shoes\nTarget name: example.com\nTarget site: https://example.com\nCompetitors:\n1. Fleet Foot (https://fleetfoot.io)\n2. Stride Labs (https://stridelabs.co)\nIdentify high-intent customer questions and concrete recommendations for content and positioning.",
+          "id": "user-1",
+          "role": "user"
+        }
+      ],
+      "response": {
+        "model": "gemini-2.5-pro",
+        "rawResponse": "```json\n{\n  \"summary\": \"Gemini sees purchase confidence forming around fit, cushioning, and durability trade-offs.\",\n  \"questions\": [\n    {\n      \"question\": \"What are the best running shoes for marathon training?\",\n      \"intent\": \"comparison\"\n    },\n    {\n      \"question\": \"Are carbon plate running shoes worth it for beginners?\",\n      \"intent\": \"evaluation\"\n    },\n    {\n      \"question\": \"How long do daily trainer running shoes usually last?\",\n      \"intent\": \"durability\"\n    }\n  ],\n  \"recommendations\": [\n    {\n      \"recommendation\": \"Publish an evidence-backed running shoe comparison table\",\n      \"rationale\": \"Gemini repeatedly emphasizes buyer anxiety around stack height, drop, and weight trade-offs.\"\n    },\n    {\n      \"recommendation\": \"Add beginner-specific fit guidance with pronation decision paths\",\n      \"rationale\": \"Beginner intent clusters around avoiding injuries and selecting the right support profile.\"\n    },\n    {\n      \"recommendation\": \"Refresh content quarterly with model-year changes and price moves\",\n      \"rationale\": \"Recommendation confidence drops when freshness signals are missing for seasonal releases.\"\n    }\n  ]\n}\n```"
+      },
+      "schemaVersion": 1,
+      "snapshot": {
+        "questions": [
+          {
+            "id": "are-carbon-plate-running-shoes-worth-it-for-beginners",
+            "intent": "evaluation",
+            "question": "Are carbon plate running shoes worth it for beginners?"
+          },
+          {
+            "id": "how-long-do-daily-trainer-running-shoes-usually-last",
+            "intent": "durability",
+            "question": "How long do daily trainer running shoes usually last?"
+          },
+          {
+            "id": "what-are-the-best-running-shoes-for-marathon-training",
+            "intent": "comparison",
+            "question": "What are the best running shoes for marathon training?"
+          }
+        ],
+        "recommendations": [
+          {
+            "id": "add-beginner-specific-fit-guidance-with-pronation-decision-paths",
+            "rationale": "Beginner intent clusters around avoiding injuries and selecting the right support profile.",
+            "recommendation": "Add beginner-specific fit guidance with pronation decision paths"
+          },
+          {
+            "id": "publish-an-evidence-backed-running-shoe-comparison-table",
+            "rationale": "Gemini repeatedly emphasizes buyer anxiety around stack height, drop, and weight trade-offs.",
+            "recommendation": "Publish an evidence-backed running shoe comparison table"
+          },
+          {
+            "id": "refresh-content-quarterly-with-model-year-changes-and-price-moves",
+            "rationale": "Recommendation confidence drops when freshness signals are missing for seasonal releases.",
+            "recommendation": "Refresh content quarterly with model-year changes and price moves"
+          }
+        ],
+        "summary": "Gemini sees purchase confidence forming around fit, cushioning, and durability trade-offs."
       }
     }
   }

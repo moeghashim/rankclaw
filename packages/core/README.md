@@ -7,6 +7,11 @@ Shared intake utilities include:
 - deterministic intake artifact serialization
 - helper paths for downstream workflow reuse
 
+Shared research utilities include:
+- Gemini prompt construction from normalized intake artifacts
+- fixture/raw response parsing and normalization into recommendation snapshots
+- deterministic research artifact serialization for downstream brief/eval workflows
+
 Test support for canonical artifact fixtures lives in:
 - `test/fixtures`
 - `test/__snapshots__`

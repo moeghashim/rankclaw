@@ -1,0 +1,91 @@
+{
+  "kind": "rankclaw/research/recommendation-snapshot",
+  "schemaVersion": 1,
+  "engine": "gemini",
+  "capturedAt": "2026-03-25T00:00:00.000Z",
+  "context": {
+    "target": {
+      "id": "example-com",
+      "topic": "Running shoes",
+      "name": "example.com",
+      "site": {
+        "input": "Example.com/products?category=running",
+        "origin": "https://example.com",
+        "host": "example.com"
+      }
+    },
+    "competitors": [
+      {
+        "id": "fleet-foot",
+        "name": "Fleet Foot",
+        "site": {
+          "input": "https://fleetfoot.io/reviews",
+          "origin": "https://fleetfoot.io",
+          "host": "fleetfoot.io"
+        }
+      },
+      {
+        "id": "stride-labs",
+        "name": "Stride Labs",
+        "site": {
+          "input": "stridelabs.co",
+          "origin": "https://stridelabs.co",
+          "host": "stridelabs.co"
+        }
+      }
+    ]
+  },
+  "prompts": [
+    {
+      "id": "system-1",
+      "role": "system",
+      "content": "You are Rankclaw's answer-intent research assistant.\nReturn JSON only with this exact shape:\n{\"summary\": string, \"questions\": [{\"question\": string, \"intent\": string}], \"recommendations\": [{\"recommendation\": string, \"rationale\": string}]}\nDo not wrap the JSON in markdown."
+    },
+    {
+      "id": "user-1",
+      "role": "user",
+      "content": "Target topic: Running shoes\nTarget name: example.com\nTarget site: https://example.com\nCompetitors:\n1. Fleet Foot (https://fleetfoot.io)\n2. Stride Labs (https://stridelabs.co)\nIdentify high-intent customer questions and concrete recommendations for content and positioning."
+    }
+  ],
+  "response": {
+    "model": "gemini-2.5-pro",
+    "rawResponse": "```json\n{\n  \"summary\": \"Gemini sees purchase confidence forming around fit, cushioning, and durability trade-offs.\",\n  \"questions\": [\n    {\n      \"question\": \"What are the best running shoes for marathon training?\",\n      \"intent\": \"comparison\"\n    },\n    {\n      \"question\": \"Are carbon plate running shoes worth it for beginners?\",\n      \"intent\": \"evaluation\"\n    },\n    {\n      \"question\": \"How long do daily trainer running shoes usually last?\",\n      \"intent\": \"durability\"\n    }\n  ],\n  \"recommendations\": [\n    {\n      \"recommendation\": \"Publish an evidence-backed running shoe comparison table\",\n      \"rationale\": \"Gemini repeatedly emphasizes buyer anxiety around stack height, drop, and weight trade-offs.\"\n    },\n    {\n      \"recommendation\": \"Add beginner-specific fit guidance with pronation decision paths\",\n      \"rationale\": \"Beginner intent clusters around avoiding injuries and selecting the right support profile.\"\n    },\n    {\n      \"recommendation\": \"Refresh content quarterly with model-year changes and price moves\",\n      \"rationale\": \"Recommendation confidence drops when freshness signals are missing for seasonal releases.\"\n    }\n  ]\n}\n```"
+  },
+  "snapshot": {
+    "summary": "Gemini sees purchase confidence forming around fit, cushioning, and durability trade-offs.",
+    "questions": [
+      {
+        "id": "are-carbon-plate-running-shoes-worth-it-for-beginners",
+        "question": "Are carbon plate running shoes worth it for beginners?",
+        "intent": "evaluation"
+      },
+      {
+        "id": "how-long-do-daily-trainer-running-shoes-usually-last",
+        "question": "How long do daily trainer running shoes usually last?",
+        "intent": "durability"
+      },
+      {
+        "id": "what-are-the-best-running-shoes-for-marathon-training",
+        "question": "What are the best running shoes for marathon training?",
+        "intent": "comparison"
+      }
+    ],
+    "recommendations": [
+      {
+        "id": "add-beginner-specific-fit-guidance-with-pronation-decision-paths",
+        "recommendation": "Add beginner-specific fit guidance with pronation decision paths",
+        "rationale": "Beginner intent clusters around avoiding injuries and selecting the right support profile."
+      },
+      {
+        "id": "publish-an-evidence-backed-running-shoe-comparison-table",
+        "recommendation": "Publish an evidence-backed running shoe comparison table",
+        "rationale": "Gemini repeatedly emphasizes buyer anxiety around stack height, drop, and weight trade-offs."
+      },
+      {
+        "id": "refresh-content-quarterly-with-model-year-changes-and-price-moves",
+        "recommendation": "Refresh content quarterly with model-year changes and price moves",
+        "rationale": "Recommendation confidence drops when freshness signals are missing for seasonal releases."
+      }
+    ]
+  }
+}

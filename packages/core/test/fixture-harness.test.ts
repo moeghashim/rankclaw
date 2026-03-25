@@ -27,12 +27,14 @@ test("artifact harness snapshot remains readable for future workflow diffs", () 
 	const snapshotPayload = {
 		fixtures: {
 			intake: listArtifactFixtures("intake"),
+			research: listArtifactFixtures("research"),
 			crawl: listArtifactFixtures("crawl"),
 			brief: listArtifactFixtures("brief"),
 			eval: listArtifactFixtures("eval"),
 		},
 		sampleArtifacts: {
 			intake: loadArtifactFixture("intake", "canonical-target-and-competitors"),
+			research: loadArtifactFixture("research", "canonical-gemini-answer-intent-snapshot"),
 			crawl: loadArtifactFixture("crawl", "serp-title-capture"),
 			brief: loadArtifactFixture("brief", "competitor-review-brief"),
 			eval: loadArtifactFixture("eval", "answer-hub-scorecard"),

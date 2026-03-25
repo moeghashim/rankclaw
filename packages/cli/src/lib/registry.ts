@@ -3,10 +3,12 @@ import { briefNamespace } from "./namespaces/brief.js";
 import { crawlNamespace } from "./namespaces/crawl.js";
 import { evalNamespace } from "./namespaces/eval.js";
 import { intakeNamespace } from "./namespaces/intake.js";
+import { researchNamespace } from "./namespaces/research.js";
 import type { CliCommand, CliNamespace } from "./types.js";
 
 const NAMESPACES: readonly CliNamespace[] = [
 	intakeNamespace,
+	researchNamespace,
 	crawlNamespace,
 	briefNamespace,
 	auditNamespace,
