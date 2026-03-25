@@ -26,3 +26,11 @@ assignees: []
 - [ ] Output is useful without manual rewriting
 - [ ] Output is structurally clear
 - [ ] Output matches the workflow goal
+
+## Done gate
+
+- [ ] Commit created
+- [ ] PR opened
+- [ ] Codex review passed
+- [ ] Validation complete
+- [ ] Eval complete

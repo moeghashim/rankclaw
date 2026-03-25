@@ -11,8 +11,9 @@
 	"scripts": {
 		"clean": "npm run clean --workspaces --if-present",
 		"build": "npm run build --workspaces --if-present",
-		"test": "npm run test --workspaces --if-present",
+		"test": "node --test scripts/test/*.test.mjs && npm run test --workspaces --if-present",
 		"check": "biome check --write --error-on-warnings . && node scripts/check-file-length.mjs && tsgo --noEmit && npm run check --workspaces --if-present",
+		"delivery:check": "node scripts/delivery-guardrails.mjs",
 		"doctor": "node scripts/doctor.mjs",
 		"docs:list": "tsx scripts/docs-list.ts",
 		"agent:verify-sync": "node scripts/agent-sync.mjs verify",
