@@ -158,3 +158,13 @@ Append-only learning log for commits and deploys. Add new entries only at the en
   - packages/core/test/fixtures/intake/canonical-target-and-competitors.json
   - packages/core/test/intake.test.ts
   - progress.md
+## 2026-03-25T16:58:49.000Z
+- Trigger: commit
+- Learning: Research snapshot normalization must suffix colliding slug ids so punctuation variants keep distinct question and recommendation records instead of being silently dropped.
+- Context: fix(research): preserve colliding snapshot entries
+- Branch: feat/10x-20-gemini-snapshot
+- Actor: Codex Agent <codex@openai.com>
+- Changed Paths:
+  - packages/core/src/lib/research.ts
+  - packages/core/test/research.test.ts
+  - progress.md
