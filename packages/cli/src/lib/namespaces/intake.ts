@@ -36,8 +36,7 @@ export const intakeNamespace: CliNamespace = {
 			name: "collect",
 			summary: "Validate, normalize, and persist target + competitor intake input.",
 			help: {
-				usage:
-					'rankclaw intake collect --target-topic <topic> --target-site <site> --competitor <name|site> [--competitor <name|site>] [--target-name <name>]',
+				usage: "rankclaw intake collect --target-topic <topic> --target-site <site> --competitor <name|site> [--competitor <name|site>] [--target-name <name>]",
 				options: [
 					{
 						flag: "--target-topic <topic>",

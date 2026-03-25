@@ -1,8 +1,9 @@
 import assert from "node:assert/strict";
 import { mkdtempSync, readFileSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
-import { join } from "node:path";
+import { dirname, join, resolve } from "node:path";
 import test from "node:test";
+import { fileURLToPath } from "node:url";
 
 import {
 	IntakeInputValidationError,
@@ -13,7 +14,8 @@ import {
 	writeTargetCompetitorArtifact,
 } from "../src/lib/intake.js";
 
-const CANONICAL_FIXTURE_PATH = "./test/fixtures/intake/canonical-target-and-competitors.json";
+const TEST_ROOT = dirname(fileURLToPath(import.meta.url));
+const CANONICAL_FIXTURE_PATH = resolve(TEST_ROOT, "fixtures/intake/canonical-target-and-competitors.json");
 
 test("normalizeTargetCompetitorInput validates and normalizes target + competitor records", () => {
 	const artifact = normalizeTargetCompetitorInput({
@@ -117,7 +119,8 @@ test("normalizeTargetCompetitorInput rejects invalid or ambiguous competitor def
 					},
 				],
 			}),
-		(error: unknown) => error instanceof IntakeInputValidationError && /Duplicate competitor site/.test(error.message),
+		(error: unknown) =>
+			error instanceof IntakeInputValidationError && /Duplicate competitor site/.test(error.message),
 	);
 
 	assert.throws(
@@ -138,7 +141,8 @@ test("normalizeTargetCompetitorInput rejects invalid or ambiguous competitor def
 					},
 				],
 			}),
-		(error: unknown) => error instanceof IntakeInputValidationError && /Duplicate competitor name/.test(error.message),
+		(error: unknown) =>
+			error instanceof IntakeInputValidationError && /Duplicate competitor name/.test(error.message),
 	);
 
 	assert.throws(

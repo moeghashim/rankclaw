@@ -105,3 +105,22 @@ Append-only learning log for commits and deploys. Add new entries only at the en
   - packages/core/src/lib/config.ts
   - packages/core/test/config.test.ts
   - packages/cli
+## 2026-03-25T15:59:32.000Z
+- Trigger: commit
+- Learning: Intake validation must canonicalize hosts and resolve fixture paths from the test file so review-edge cases and regression checks stay stable.
+- Context: fix(intake): close review and fixture gaps
+- Branch: feat/10x-19-intake-cli-inputs-r3
+- Actor: Codex Agent <codex@openai.com>
+- Changed Paths:
+  - packages/cli/src/lib/namespaces/intake.ts
+  - packages/core/test/intake.test.ts
+  - progress.md
+## 2026-03-25T15:59:23.526Z
+- Trigger: commit
+- Learning: Intake validation must canonicalize hosts and resolve fixture paths from the test file so review-edge cases and regression checks stay stable.
+- Context: fix(intake): close review and fixture gaps
+- Branch: feat/10x-19-intake-cli-inputs-r3
+- Actor: Moe Ghashim <mohanadgh@gmail.com>
+- Changed Paths:
+  - packages/cli/src/lib/namespaces/intake.ts
+  - packages/core/test/intake.test.ts
