@@ -104,6 +104,23 @@ test("normalizeTargetCompetitorInput rejects invalid or ambiguous competitor def
 			normalizeTargetCompetitorInput({
 				target: {
 					topic: "Running shoes",
+					site: "example.com",
+				},
+				competitors: [
+					{
+						name: "Acme",
+						site: "https://example.com./reviews",
+					},
+				],
+			}),
+		(error: unknown) => error instanceof IntakeInputValidationError && /same site as the target/.test(error.message),
+	);
+
+	assert.throws(
+		() =>
+			normalizeTargetCompetitorInput({
+				target: {
+					topic: "Running shoes",
 					site: "https://example.com",
 				},
 				competitors: [
@@ -141,6 +158,28 @@ test("normalizeTargetCompetitorInput rejects invalid or ambiguous competitor def
 			}),
 		(error: unknown) =>
 			error instanceof IntakeInputValidationError && /Duplicate competitor name/.test(error.message),
+	);
+
+	assert.throws(
+		() =>
+			normalizeTargetCompetitorInput({
+				target: {
+					topic: "Running shoes",
+					site: "example.com",
+				},
+				competitors: [
+					{
+						name: "Acme",
+						site: "acme.test",
+					},
+					{
+						name: "Acme!",
+						site: "acme-two.test",
+					},
+				],
+			}),
+		(error: unknown) =>
+			error instanceof IntakeInputValidationError && /Duplicate competitor slug/.test(error.message),
 	);
 
 	assert.throws(

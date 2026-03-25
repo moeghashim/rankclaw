@@ -72,6 +72,7 @@ export function normalizeTargetCompetitorInput(input: TargetCompetitorInput): Ta
 
 	const competitorHosts = new Set<string>();
 	const competitorNames = new Set<string>();
+	const competitorIds = new Set<string>();
 	const normalizedCompetitors = input.competitors.map((competitor, index) => {
 		const competitorName = normalizeRequiredText(competitor.name, `competitor ${index + 1} name`);
 		const competitorSite = normalizeSite(competitor.site, `competitor ${index + 1} site`);
@@ -91,8 +92,13 @@ export function normalizeTargetCompetitorInput(input: TargetCompetitorInput): Ta
 			throw new IntakeInputValidationError(`Duplicate competitor name is not allowed: ${competitorName}`);
 		}
 
+		if (competitorIds.has(competitorId)) {
+			throw new IntakeInputValidationError(`Duplicate competitor slug is not allowed: ${competitorId}`);
+		}
+
 		competitorHosts.add(competitorSite.host);
 		competitorNames.add(competitorName);
+		competitorIds.add(competitorId);
 
 		return {
 			id: competitorId,
@@ -252,8 +258,12 @@ function normalizeSite(value: string, fieldLabel: string): IntakeSite {
 	return {
 		input: rawInput,
 		origin: url.origin,
-		host: url.hostname,
+		host: normalizeHostname(url.hostname),
 	};
+}
+
+function normalizeHostname(hostname: string): string {
+	return hostname.replace(/[.]+$/u, "");
 }
 
 function toSlug(value: string, fallback: string): string {
