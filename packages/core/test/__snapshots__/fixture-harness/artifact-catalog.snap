@@ -8,6 +8,9 @@
     ],
     "eval": [
       "answer-hub-scorecard"
+    ],
+    "intake": [
+      "canonical-target-and-competitors"
     ]
   },
   "sampleArtifacts": {
@@ -57,6 +60,40 @@
         "actionability": 4.7,
         "citationReadiness": 4.2,
         "specificity": 4.5
+      }
+    },
+    "intake": {
+      "competitors": [
+        {
+          "id": "fleet-foot",
+          "name": "Fleet Foot",
+          "site": {
+            "host": "fleetfoot.io",
+            "input": "https://fleetfoot.io/reviews",
+            "origin": "https://fleetfoot.io"
+          }
+        },
+        {
+          "id": "stride-labs",
+          "name": "Stride Labs",
+          "site": {
+            "host": "stridelabs.co",
+            "input": "stridelabs.co",
+            "origin": "https://stridelabs.co"
+          }
+        }
+      ],
+      "kind": "rankclaw/intake/target-competitors",
+      "schemaVersion": 1,
+      "target": {
+        "id": "example-com",
+        "name": "example.com",
+        "site": {
+          "host": "example.com",
+          "input": "Example.com/products?category=running",
+          "origin": "https://example.com"
+        },
+        "topic": "Running shoes"
       }
     }
   }

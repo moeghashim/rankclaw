@@ -26,11 +26,13 @@ test("artifact fixture reads remain stable across repeated loads", () => {
 test("artifact harness snapshot remains readable for future workflow diffs", () => {
 	const snapshotPayload = {
 		fixtures: {
+			intake: listArtifactFixtures("intake"),
 			crawl: listArtifactFixtures("crawl"),
 			brief: listArtifactFixtures("brief"),
 			eval: listArtifactFixtures("eval"),
 		},
 		sampleArtifacts: {
+			intake: loadArtifactFixture("intake", "canonical-target-and-competitors"),
 			crawl: loadArtifactFixture("crawl", "serp-title-capture"),
 			brief: loadArtifactFixture("brief", "competitor-review-brief"),
 			eval: loadArtifactFixture("eval", "answer-hub-scorecard"),

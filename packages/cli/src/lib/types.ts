@@ -11,9 +11,21 @@ export interface CliIO {
 	error: (message: string) => void;
 }
 
+export interface CliCommandOptionHelp {
+	flag: string;
+	description: string;
+}
+
+export interface CliCommandHelp {
+	usage?: string;
+	options?: readonly CliCommandOptionHelp[];
+	examples?: readonly string[];
+}
+
 export interface CliCommand {
 	name: string;
 	summary: string;
+	help?: CliCommandHelp;
 	run: (context: CliContext, args: readonly string[], io: CliIO) => Promise<number> | number;
 }
 

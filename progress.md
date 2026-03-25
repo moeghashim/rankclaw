@@ -105,3 +105,56 @@ Append-only learning log for commits and deploys. Add new entries only at the en
   - packages/core/src/lib/config.ts
   - packages/core/test/config.test.ts
   - packages/cli
+## 2026-03-25T12:39:11.932Z
+- Trigger: commit
+- Learning: Structured intake parsing plus shared normalization and canonical fixture artifacts gives downstream workflows deterministic target and competitor records.
+- Context: feat(intake): accept target and competitor CLI inputs
+- Branch: feat/10x-19-intake-cli-inputs
+- Actor: unknown <unknown>
+- Changed Paths:
+  - packages/cli/README.md
+  - packages/cli/src/lib/help.ts
+  - packages/cli/src/lib/namespaces/intake.ts
+  - packages/cli/src/lib/types.ts
+  - packages/cli/test/cli-smoke.test.ts
+  - packages/core/README.md
+  - packages/core/src/index.ts
+  - packages/core/src/lib/intake.ts
+  - packages/core/test/__snapshots__/fixture-harness/artifact-catalog.snap
+  - packages/core/test/fixture-harness.test.ts
+  - packages/core/test/fixtures/README.md
+  - packages/core/test/fixtures/intake/canonical-target-and-competitors.json
+  - packages/core/test/intake.test.ts
+  - packages/core/test/support/fixtures.ts
+## 2026-03-25T12:39:23.726Z
+- Trigger: commit
+- Learning: Structured intake parsing plus shared normalization and canonical fixture artifacts gives downstream workflows deterministic target and competitor records.
+- Context: feat(intake): accept target and competitor CLI inputs
+- Branch: feat/10x-19-intake-cli-inputs
+- Actor: Codex Agent <codex@openai.com>
+- Changed Paths:
+  - packages/cli/README.md
+  - packages/cli/src/lib/help.ts
+  - packages/cli/src/lib/namespaces/intake.ts
+  - packages/cli/src/lib/types.ts
+  - packages/cli/test/cli-smoke.test.ts
+  - packages/core/README.md
+  - packages/core/src/index.ts
+  - packages/core/src/lib/intake.ts
+  - packages/core/test/__snapshots__/fixture-harness/artifact-catalog.snap
+  - packages/core/test/fixture-harness.test.ts
+  - packages/core/test/fixtures/README.md
+  - packages/core/test/fixtures/intake/canonical-target-and-competitors.json
+  - packages/core/test/intake.test.ts
+  - packages/core/test/support/fixtures.ts
+## 2026-03-25T18:05:00.000Z
+- Trigger: commit
+- Learning: Intake validation must dedupe by host and normalized name so scheme changes and non-Latin duplicates cannot bypass competitor guards.
+- Context: fix(intake): tighten competitor dedupe guards
+- Branch: feat/10x-19-intake-cli-inputs
+- Actor: Codex Agent <codex@openai.com>
+- Changed Paths:
+  - packages/core/src/lib/intake.ts
+  - packages/core/test/fixtures/intake/canonical-target-and-competitors.json
+  - packages/core/test/intake.test.ts
+  - progress.md
