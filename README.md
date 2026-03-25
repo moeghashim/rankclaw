@@ -15,9 +15,9 @@ See [docs/delivery-process.md](./docs/delivery-process.md), [docs/PRD0.md](./doc
 
 ## Product shape
 
-- `apps/web`: future dashboard, reports, docs, and onboarding surface
+- `packages/cli`: primary execution layer for MVP workflows
 - `packages/core`: shared domain logic, schemas, and reusable operators
-- future CLI package: the primary execution layer for the MVP
+- `apps/web`: future dashboard, reports, docs, and onboarding surface
 
 ## Setup
 
@@ -47,3 +47,4 @@ Linear issue creation and Symphony execution start only after the PRD is approve
 
 - `@rankclaw/web`
 - `@rankclaw/core`
+- `@rankclaw/cli`
