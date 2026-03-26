@@ -223,3 +223,13 @@ Append-only learning log for commits and deploys. Add new entries only at the en
   - packages/core/test/fixtures/sources/canonical-imported-sources.json
   - packages/core/test/support/fixtures.ts
   - packages/core/test/sources.test.ts
+## 2026-03-26T17:20:00.000Z
+- Trigger: commit
+- Learning: Hostname:port fallbacks must only accept recognizable hosts so numeric scheme payloads stay invalid during source import normalization.
+- Context: fix(sources): reject numeric scheme-like source inputs
+- Branch: moe/10x-22-sources-import-external-review-and-source-urls-into-reusable
+- Actor: Codex Agent <codex@openai.com>
+- Changed Paths:
+  - packages/core/src/lib/sources.ts
+  - packages/core/test/sources.test.ts
+  - progress.md

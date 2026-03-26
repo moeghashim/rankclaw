@@ -216,7 +216,7 @@ test("normalizeSourceImportInput rejects unknown competitor source owner ids", (
 });
 
 
-test("normalizeSourceImportInput rejects scheme-like inputs without clobbering hostname:port entries", () => {
+test("normalizeSourceImportInput rejects numeric scheme-like inputs without clobbering recognizable hostname:port entries", () => {
 	const intakeArtifact = normalizeTargetCompetitorInput({
 		target: {
 			topic: "Running shoes",
@@ -227,7 +227,14 @@ test("normalizeSourceImportInput rejects scheme-like inputs without clobbering h
 
 	const artifact = normalizeSourceImportInput({
 		intakeArtifact,
-		targetSources: ["mailto:test@example.com", "example.com:8080/reviews"],
+		targetSources: [
+			"mailto:test@example.com",
+			"tel:911",
+			"mailto:443",
+			"example.com:8080/reviews",
+			"localhost:3000/reviews",
+			"127.0.0.1:3000/reviews",
+		],
 		competitorSources: [],
 	});
 
@@ -244,6 +251,38 @@ test("normalizeSourceImportInput rejects scheme-like inputs without clobbering h
 				href: "https://example.com:8080/reviews",
 				origin: "https://example.com:8080",
 				host: "example.com",
+				pathname: "/reviews",
+				search: "",
+			},
+		},
+		{
+			id: "target-example-com-localhost-3000-reviews",
+			owner: {
+				type: "target",
+				id: "example-com",
+				name: "example.com",
+			},
+			input: "localhost:3000/reviews",
+			url: {
+				href: "https://localhost:3000/reviews",
+				origin: "https://localhost:3000",
+				host: "localhost",
+				pathname: "/reviews",
+				search: "",
+			},
+		},
+		{
+			id: "target-example-com-127-0-0-1-3000-reviews",
+			owner: {
+				type: "target",
+				id: "example-com",
+				name: "example.com",
+			},
+			input: "127.0.0.1:3000/reviews",
+			url: {
+				href: "https://127.0.0.1:3000/reviews",
+				origin: "https://127.0.0.1:3000",
+				host: "127.0.0.1",
 				pathname: "/reviews",
 				search: "",
 			},
@@ -266,15 +305,55 @@ test("normalizeSourceImportInput rejects scheme-like inputs without clobbering h
 				id: "example-com",
 				name: "example.com",
 			},
+			input: "tel:911",
+			status: "invalid",
+			reason: "Expected target source URL 2 to use http or https.",
+		},
+		{
+			owner: {
+				type: "target",
+				id: "example-com",
+				name: "example.com",
+			},
+			input: "mailto:443",
+			status: "invalid",
+			reason: "Expected target source URL 3 to use http or https.",
+		},
+		{
+			owner: {
+				type: "target",
+				id: "example-com",
+				name: "example.com",
+			},
 			input: "example.com:8080/reviews",
 			status: "accepted",
 			recordId: "target-example-com-example-com-8080-reviews",
 		},
+		{
+			owner: {
+				type: "target",
+				id: "example-com",
+				name: "example.com",
+			},
+			input: "localhost:3000/reviews",
+			status: "accepted",
+			recordId: "target-example-com-localhost-3000-reviews",
+		},
+		{
+			owner: {
+				type: "target",
+				id: "example-com",
+				name: "example.com",
+			},
+			input: "127.0.0.1:3000/reviews",
+			status: "accepted",
+			recordId: "target-example-com-127-0-0-1-3000-reviews",
+		},
 	]);
 	assert.deepEqual(artifact.summary, {
-		accepted: 1,
+		accepted: 3,
 		duplicates: 0,
-		invalid: 1,
+		invalid: 3,
 	});
 });
 

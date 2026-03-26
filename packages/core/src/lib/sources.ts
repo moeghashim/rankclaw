@@ -444,7 +444,28 @@ function normalizeSourceUrl(value: string, fieldLabel: string): { input: string;
 }
 
 function looksLikeHostnameWithPort(hostCandidate: string, remainder: string): boolean {
-	return /^[a-zA-Z\d.-]+$/u.test(hostCandidate) && /^\d+(?:[/?#].*)?$/u.test(remainder);
+	if (!/^\d+(?:[/?#].*)?$/u.test(remainder)) {
+		return false;
+	}
+
+	const normalizedHost = normalizeHostname(hostCandidate);
+	return normalizedHost === "localhost" || isIpv4Literal(normalizedHost) || isDottedHostname(normalizedHost);
+}
+
+function isIpv4Literal(value: string): boolean {
+	if (!/^\d{1,3}(?:\.\d{1,3}){3}$/u.test(value)) {
+		return false;
+	}
+
+	return value.split(".").every((segment) => Number(segment) >= 0 && Number(segment) <= 255);
+}
+
+function isDottedHostname(value: string): boolean {
+	if (!value.includes(".")) {
+		return false;
+	}
+
+	return value.split(".").every((label) => /^[a-z\d](?:[a-z\d-]*[a-z\d])?$/iu.test(label));
 }
 
 function normalizeSearch(searchParams: URLSearchParams): string {
