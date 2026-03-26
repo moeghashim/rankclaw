@@ -2,7 +2,7 @@ import { readdirSync, readFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
-export const ARTIFACT_FIXTURE_KINDS = ["intake", "research", "crawl", "brief", "eval"] as const;
+export const ARTIFACT_FIXTURE_KINDS = ["intake", "sources", "research", "crawl", "brief", "eval"] as const;
 
 export type ArtifactFixtureKind = (typeof ARTIFACT_FIXTURE_KINDS)[number];
 export type JsonFixtureValue =

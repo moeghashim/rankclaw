@@ -40,6 +40,17 @@ test("intake collect command help shows operator-facing input model", async () =
 	assert.match(result.stdout, /name\|site/);
 });
 
+test("intake sources command help shows URL import model", async () => {
+	const result = await invokeCli(["intake", "sources", "--help"], process.cwd());
+
+	assert.equal(result.exitCode, 0);
+	assert.equal(result.stderr, "");
+	assert.match(result.stdout, /--target-source/);
+	assert.match(result.stdout, /--competitor-source/);
+	assert.match(result.stdout, /competitor-id\|url/);
+	assert.match(result.stdout, /--intake-artifact/);
+});
+
 test("research gemini command help shows fixture-backed execution model", async () => {
 	const result = await invokeCli(["research", "gemini", "--help"], process.cwd());
 
@@ -133,6 +144,80 @@ test("intake collect validates and writes normalized target+competitor artifacts
 	}
 });
 
+test("intake sources imports canonical URL sample set with explicit dedupe and invalid handling", async () => {
+	const workingDirectory = mkdtempSync(join(tmpdir(), "rankclaw-cli-sources-"));
+	const outputDirectory = resolve(workingDirectory, "captures");
+	const intakeArtifactPath = resolve(outputDirectory, "intake", "target-competitors.json");
+	const outputArtifactPath = resolve(outputDirectory, "sources", "imported-sources.json");
+
+	try {
+		writeFileSync(
+			join(workingDirectory, "rankclaw.config.json"),
+			JSON.stringify({ profile: "smoke-profile", outputDir: "captures" }, null, 2),
+			"utf8",
+		);
+
+		const canonicalIntakeFixturePath = resolve(
+			REPO_ROOT,
+			"packages",
+			"core",
+			"test",
+			"fixtures",
+			"intake",
+			"canonical-target-and-competitors.json",
+		);
+		const canonicalSourcesFixturePath = resolve(
+			REPO_ROOT,
+			"packages",
+			"core",
+			"test",
+			"fixtures",
+			"sources",
+			"canonical-imported-sources.json",
+		);
+
+		mkdirSync(dirname(intakeArtifactPath), { recursive: true });
+		writeFileSync(intakeArtifactPath, readFileSync(canonicalIntakeFixturePath, "utf8"), "utf8");
+
+		const result = await invokeCli(
+			[
+				"intake",
+				"sources",
+				"--target-source",
+				"https://example.com/reviews/running-shoes?utm_source=newsletter",
+				"--target-source",
+				"example.com/reviews/running-shoes/",
+				"--target-source",
+				"https://",
+				"--competitor-source",
+				"fleet-foot|https://fleetfoot.io/reviews/best-running-shoes",
+				"--competitor-source",
+				"fleet-foot|https://fleetfoot.io/reviews/best-running-shoes?utm_medium=email",
+				"--competitor-source",
+				"stride-labs|https://stridelabs.co/blog/carbon-plate-guide?b=2&a=1",
+			],
+			workingDirectory,
+		);
+
+		assert.equal(result.exitCode, 0);
+		assert.equal(result.stderr, "");
+		assert.ok(result.stdout.includes(`Wrote source import artifact: ${outputArtifactPath}`));
+		assert.ok(result.stdout.includes("Accepted URLs: 3"));
+		assert.ok(result.stdout.includes("Duplicate URLs: 2"));
+		assert.ok(result.stdout.includes("Invalid URLs: 1"));
+		assert.ok(result.stdout.includes("ACCEPTED target:example-com"));
+		assert.ok(result.stdout.includes("DUPLICATE target:example-com"));
+		assert.ok(result.stdout.includes("INVALID target:example-com"));
+		assert.ok(existsSync(outputArtifactPath));
+
+		const artifact = JSON.parse(readFileSync(outputArtifactPath, "utf8")) as unknown;
+		const expectedArtifact = JSON.parse(readFileSync(canonicalSourcesFixturePath, "utf8")) as unknown;
+		assert.deepEqual(artifact, expectedArtifact);
+	} finally {
+		rmSync(workingDirectory, { recursive: true, force: true });
+	}
+});
+
 test("intake collect rejects malformed competitor inputs", async () => {
 	const result = await invokeCli(
 		[
@@ -150,6 +235,17 @@ test("intake collect rejects malformed competitor inputs", async () => {
 
 	assert.equal(result.exitCode, 1);
 	assert.match(result.stderr, /name\|site/);
+	assert.match(result.stdout, /--help/);
+});
+
+test("intake sources rejects malformed competitor source mappings", async () => {
+	const result = await invokeCli(
+		["intake", "sources", "--target-source", "https://example.com/reviews", "--competitor-source", "bad-format"],
+		process.cwd(),
+	);
+
+	assert.equal(result.exitCode, 1);
+	assert.match(result.stderr, /competitor-id\|url/);
 	assert.match(result.stdout, /--help/);
 });
 

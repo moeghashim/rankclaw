@@ -12,6 +12,10 @@ Shared research utilities include:
 - engine-specific fixture/raw response parsing and normalization into recommendation snapshots
 - deterministic research artifact serialization for downstream brief/eval workflows
 
+Shared source-import utilities include:
+- target/competitor URL import normalization with explicit accepted/duplicate/invalid outcomes
+- deterministic source-record artifact serialization for downstream crawl and brief workflows
+
 Test support for canonical artifact fixtures lives in:
 - `test/fixtures`
 - `test/__snapshots__`
