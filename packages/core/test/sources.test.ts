@@ -215,6 +215,70 @@ test("normalizeSourceImportInput rejects unknown competitor source owner ids", (
 	);
 });
 
+
+test("normalizeSourceImportInput rejects scheme-like inputs without clobbering hostname:port entries", () => {
+	const intakeArtifact = normalizeTargetCompetitorInput({
+		target: {
+			topic: "Running shoes",
+			site: "example.com",
+		},
+		competitors: [],
+	});
+
+	const artifact = normalizeSourceImportInput({
+		intakeArtifact,
+		targetSources: ["mailto:test@example.com", "example.com:8080/reviews"],
+		competitorSources: [],
+	});
+
+	assert.deepEqual(artifact.sources, [
+		{
+			id: "target-example-com-example-com-8080-reviews",
+			owner: {
+				type: "target",
+				id: "example-com",
+				name: "example.com",
+			},
+			input: "example.com:8080/reviews",
+			url: {
+				href: "https://example.com:8080/reviews",
+				origin: "https://example.com:8080",
+				host: "example.com",
+				pathname: "/reviews",
+				search: "",
+			},
+		},
+	]);
+	assert.deepEqual(artifact.outcomes, [
+		{
+			owner: {
+				type: "target",
+				id: "example-com",
+				name: "example.com",
+			},
+			input: "mailto:test@example.com",
+			status: "invalid",
+			reason: "Expected target source URL 1 to use http or https.",
+		},
+		{
+			owner: {
+				type: "target",
+				id: "example-com",
+				name: "example.com",
+			},
+			input: "example.com:8080/reviews",
+			status: "accepted",
+			recordId: "target-example-com-example-com-8080-reviews",
+		},
+	]);
+	assert.deepEqual(artifact.summary, {
+		accepted: 1,
+		duplicates: 0,
+		invalid: 1,
+	});
+});
+
+
 test("canonical source import fixture stays stable for regression checks", () => {
 	const expectedArtifact = JSON.parse(readFileSync(CANONICAL_SOURCE_IMPORT_FIXTURE_PATH, "utf8")) as unknown;
 	const intakeArtifact = readTargetCompetitorArtifact(CANONICAL_INTAKE_FIXTURE_PATH);

@@ -9,6 +9,7 @@ import {
 } from "./intake.js";
 
 const SCHEME_PREFIX_PATTERN = /^[a-zA-Z][a-zA-Z\d+.-]*:\/\//;
+const SCHEME_LIKE_INPUT_PATTERN = /^([a-zA-Z][a-zA-Z\d+.-]*):(?!\/\/)(.*)$/;
 const WHITESPACE_PATTERN = /\s+/g;
 const DUPLICATE_SLASH_PATTERN = /\/{2,}/g;
 const SLUG_PATTERN = /[^a-z0-9]+/g;
@@ -399,6 +400,10 @@ function normalizeSourceImportEntries(
 
 function normalizeSourceUrl(value: string, fieldLabel: string): { input: string; url: SourceRecordUrl } {
 	const rawInput = normalizeRequiredText(value, fieldLabel);
+	const schemeLikeMatch = rawInput.match(SCHEME_LIKE_INPUT_PATTERN);
+	if (schemeLikeMatch !== null && !looksLikeHostnameWithPort(schemeLikeMatch[1], schemeLikeMatch[2])) {
+		throw new SourceImportValidationError(`Expected ${fieldLabel} to use http or https.`);
+	}
 	const normalizedInput = SCHEME_PREFIX_PATTERN.test(rawInput) ? rawInput : `https://${rawInput}`;
 	let url: URL;
 
@@ -436,6 +441,10 @@ function normalizeSourceUrl(value: string, fieldLabel: string): { input: string;
 			search,
 		},
 	};
+}
+
+function looksLikeHostnameWithPort(hostCandidate: string, remainder: string): boolean {
+	return /^[a-zA-Z\d.-]+$/u.test(hostCandidate) && /^\d+(?:[/?#].*)?$/u.test(remainder);
 }
 
 function normalizeSearch(searchParams: URLSearchParams): string {
